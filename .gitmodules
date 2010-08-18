@@ -1,0 +1,3 @@
+[submodule "lib/ometa-js"]
+	path = lib/ometa-js
+	url = git@github.com:bmavity/ometa-js.git
