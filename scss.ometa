@@ -1,0 +1,81 @@
+var vars = (function() {
+  var inner = {}
+      that = {};
+
+  that.add = function(name, val) {
+    inner[name] = val;
+  };
+
+  that.getVal = function(name) {
+    return inner[name];
+  };
+
+  return that;
+})();
+
+var createBlock = function(selector) {
+  var blocks = [],
+      properties = [],
+      that = {};
+
+  that.addProperty = function(props) {
+    for(var i = 0; i < props.length; i += 1) {
+      properties.push(props[i]);
+    }
+  };  
+
+  that.addBlock = function(childBlocks) {
+    for(var i = 0; i < childBlocks.length; i += 1) {
+      blocks.push(childBlocks[i]);
+    }
+  };
+
+  that.toString = function(parent) {
+    var html = parent.indent + parent.selector + ' ' + selector + ' {\n';
+    for(var i = 0; i < properties.length; i += 1) {
+      html += parent.indent + '  ' + properties[i].name + ': ' + properties[i].val + ';\n';
+    }
+    html += parent.indent + '}\n';
+    for(var j = 0; j < blocks.length; j += 1) {
+      html += blocks[j].toString({ indent: parent.indent + '  ', selector: parent.selector + ' ' + selector });
+    }
+    return html;
+  };
+  
+  return that;
+};
+
+var file = (function() {
+  var blocks = [],
+      that = {};
+
+  that.addBlocks = function(childBlocks) {
+    for(var i = 0; i < childBlocks.length; i += 1) {
+      blocks.push(childBlocks[i]);
+    }
+  };
+
+  that.toString = function() {
+    var html = '';
+    for(var i = 0; i < blocks.length; i += 1) {
+      html += blocks[i].toString({ indent: '', selector: '' });
+      html += '\n';
+    }
+    return html;
+  };
+
+  return that;
+})();
+
+ometa Scss <: Parser {
+  selectorCharacters = letter+:chars -> chars.join(''),
+  selector = ('#' | '.' | ':'):pre selectorCharacters:sel -> (pre + sel)
+           | selectorCharacters:sel -> sel,
+  spacedSelector = space+ selector:sel -> (' ' + sel),
+  fullSelector = selector:first (spacedSelector | selector)*:rest -> (first + rest.join('')),
+  property = spaces letter+:prop spaces ':' spaces letterOrDigit+:val spaces ';' -> ({ name: prop.join(''), val: val.join('')}),
+  scssBlock = spaces fullSelector:sel spaces '{' property*:props scssBlock*:blocks spaces '}' -> { var b = createBlock(sel); b.addProperty(props); b.addBlock(blocks); b },
+  scssFile = scssBlock*:blocks -> { file.addBlocks(blocks); file }
+}
+Scss.matchAll('div { height:15; .error { background: red; color:gree; }} a:hover{color: red; }', 'scssFile')
+
