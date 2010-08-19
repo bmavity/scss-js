@@ -2,12 +2,23 @@ var vars = (function() {
   var inner = {}
       that = {};
 
-  that.add = function(name, val) {
-    inner[name] = val;
+  that.add = function(props) {
+    //require('sys').puts(require('sys').inspect(props));
+    for(var i = 0; i < props.length; i += 1) {
+      inner[props[i].name] = props[i].val;
+    }
   };
 
   that.getVal = function(name) {
     return inner[name];
+  };
+
+  that.toString = function() {
+    var html = '';
+    for(var p in inner) {
+      html += p + ' = ' + inner[p] + '\n';
+    }
+    return html;
   };
 
   return that;
@@ -61,6 +72,7 @@ var file = (function() {
 
   that.toString = function() {
     var html = '';
+    //html += vars.toString() + '\n';
     for(var i = 0; i < blocks.length; i += 1) {
       html += blocks[i].toString({ indent: '', selector: '' });
       html += '\n';
@@ -79,7 +91,8 @@ ometa Scss <: Parser {
   fullSelector = selector:first (spacedSelector | selector)*:rest -> (first + rest.join('')),
   property = spaces letter+:prop ":" spaces letterOrDigit+:val ";" -> ({ name: prop.join(''), val: val.join('')}),
   scssBlock = spaces fullSelector:sel "{" property*:props scssBlock*:blocks "}" -> { var b = createBlock(sel); b.addProperty(props); b.addBlock(blocks); b },
-  scssFile = scssBlock*:blocks -> { file.addBlocks(blocks); file }
+  scssVariable = "$" letter+:name ":" spaces letterOrDigit+:val ";" -> ({ name:name.join(''), val:val.join('') }),
+  scssFile = scssVariable*:scssVars scssBlock*:blocks -> { file.addBlocks(blocks); vars.add(scssVars); file }
 }
 Scss
 
