@@ -14,11 +14,11 @@ var vars = (function() {
   };
 
   that.toString = function() {
-    var html = '';
+    var css = '';
     for(var p in inner) {
-      html += p + ' = ' + inner[p] + '\n';
+      css += p + ' = ' + inner[p] + '\n';
     }
-    return html;
+    return css;
   };
 
   return that;
@@ -53,15 +53,15 @@ var createBlock = function(selector) {
         currentIndent = parentIndent + '  ',
         paddedParentSelector = parent.selector ? parent.selector + ' ' : '',
         currentSelector = paddedParentSelector + selector,
-        html = parentIndent + paddedParentSelector + selector + ' {\n';
+        css = parentIndent + paddedParentSelector + selector + ' {\n';
     for(var i = 0; i < properties.length; i += 1) {
-      html += currentIndent + properties[i].name + ': ' + getPropertyValue(properties[i].val) + ';\n';
+      css += currentIndent + properties[i].name + ': ' + getPropertyValue(properties[i].val) + ';\n';
     }
-    html += parentIndent + '}\n';
+    css += parentIndent + '}\n';
     for(var j = 0; j < blocks.length; j += 1) {
-      html += blocks[j].toString({ indent: currentIndent, selector: currentSelector });
+      css += blocks[j].toString({ indent: currentIndent, selector: currentSelector });
     }
-    return html;
+    return css;
   };
   
   return that;
@@ -78,13 +78,13 @@ var file = (function() {
   };
 
   that.toString = function() {
-    var html = '';
-    //html += vars.toString() + '\n';
+    var css = '';
+    //css += vars.toString() + '\n';
     for(var i = 0; i < blocks.length; i += 1) {
-      html += blocks[i].toString({ indent: '', selector: '' });
-      html += '\n';
+      css += blocks[i].toString({ indent: '', selector: '' });
+      css += '\n';
     }
-    return html;
+    return css;
   };
 
   return that;
