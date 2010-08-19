@@ -29,6 +29,13 @@ var createBlock = function(selector) {
       properties = [],
       that = {};
 
+  var getPropertyValue = function(val) {
+    if(val.indexOf('$') == 0) {
+      return vars.getVal(val.replace('$', ''));
+    }
+    return val;
+  };
+
   that.addProperty = function(props) {
     for(var i = 0; i < props.length; i += 1) {
       properties.push(props[i]);
@@ -48,7 +55,7 @@ var createBlock = function(selector) {
         currentSelector = paddedParentSelector + selector,
         html = parentIndent + paddedParentSelector + selector + ' {\n';
     for(var i = 0; i < properties.length; i += 1) {
-      html += currentIndent + properties[i].name + ': ' + properties[i].val + ';\n';
+      html += currentIndent + properties[i].name + ': ' + getPropertyValue(properties[i].val) + ';\n';
     }
     html += parentIndent + '}\n';
     for(var j = 0; j < blocks.length; j += 1) {
@@ -89,7 +96,7 @@ ometa Scss <: Parser {
            | selectorCharacters:sel -> sel,
   spacedSelector = space+ selector:sel -> (' ' + sel),
   fullSelector = selector:first (spacedSelector | selector)*:rest -> (first + rest.join('')),
-  property = spaces letter+:prop ":" spaces letterOrDigit+:val ";" -> ({ name: prop.join(''), val: val.join('')}),
+  property = spaces letter+:prop ":" spaces ('$' | letterOrDigit)+:val ";" -> ({ name: prop.join(''), val: val.join('')}),
   scssBlock = spaces fullSelector:sel "{" property*:props scssBlock*:blocks "}" -> { var b = createBlock(sel); b.addProperty(props); b.addBlock(blocks); b },
   scssVariable = "$" letter+:name ":" spaces letterOrDigit+:val ";" -> ({ name:name.join(''), val:val.join('') }),
   scssFile = scssVariable*:scssVars scssBlock*:blocks -> { file.addBlocks(blocks); vars.add(scssVars); file }
