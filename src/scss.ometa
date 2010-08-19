@@ -77,5 +77,5 @@ ometa Scss <: Parser {
   scssBlock = spaces fullSelector:sel spaces '{' property*:props scssBlock*:blocks spaces '}' -> { var b = createBlock(sel); b.addProperty(props); b.addBlock(blocks); b },
   scssFile = scssBlock*:blocks -> { file.addBlocks(blocks); file }
 }
-Scss.matchAll('div { height:15; .error { background: red; color:gree; }} a:hover{color: red; }', 'scssFile')
+Scss
 
