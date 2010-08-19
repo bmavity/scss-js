@@ -5,7 +5,7 @@ var sys = require('sys'),
 
 var getParser = function(callback) {
   if(!createdParser) {
-    fs.readFile('scss.ometa', function(err, contents) {
+    fs.readFile(__dirname + '/scss.ometa', function(err, contents) {
       if(err) {
         callback(err);
       } else {
@@ -34,7 +34,7 @@ var parse = function(scssFile, callback) {
       });
     }
   });
-});
+};
 
 
 module.exports.parse = parse;
