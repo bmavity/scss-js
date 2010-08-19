@@ -96,9 +96,10 @@ ometa Scss <: Parser {
            | selectorCharacters:sel -> sel,
   spacedSelector = space+ selector:sel -> (' ' + sel),
   fullSelector = selector:first (spacedSelector | selector)*:rest -> (first + rest.join('')),
-  property = spaces letter+:prop ":" spaces ('$' | letterOrDigit)+:val ";" -> ({ name: prop.join(''), val: val.join('')}),
+  propertyValue = ('$' | letterOrDigit)+:val -> val.join(''),
+  property = spaces letter+:prop ":" spaces propertyValue:val ";" -> ({ name: prop.join(''), val: val }),
   scssBlock = spaces fullSelector:sel "{" property*:props scssBlock*:blocks "}" -> { var b = createBlock(sel); b.addProperty(props); b.addBlock(blocks); b },
-  scssVariable = "$" letter+:name ":" spaces letterOrDigit+:val ";" -> ({ name:name.join(''), val:val.join('') }),
+  scssVariable = "$" letter+:name ":" spaces propertyValue:val ";" -> ({ name:name.join(''), val:val }),
   scssFile = scssVariable*:scssVars scssBlock*:blocks -> { file.addBlocks(blocks); vars.add(scssVars); file }
 }
 Scss
