@@ -1,0 +1,15 @@
+#main {
+  margin: 0 5.625em;
+  h5 {
+    font-size: 1em;
+    line-height: 1.25em;
+  }
+  .post {
+    text-align left;
+    ul {
+      list-style-position: inside;
+      list-style-type: circle;
+      margin: 0.625em;
+    }
+  }
+}
