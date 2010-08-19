@@ -1,12 +1,12 @@
 div {
-  height: Td3e115;
+  height: #d3e115;
 }
   div .error {
-    background: a234567;
+    background: #234567;
     color: green;
   }
 
 a:hover {
-  color: red;
+  color: #234567;
 }
 
