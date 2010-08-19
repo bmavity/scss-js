@@ -1,12 +1,12 @@
- div {
+div {
   height: 15;
 }
-   div .error {
+  div .error {
     background: red;
     color: green;
   }
 
- a:hover {
+a:hover {
   color: red;
 }
 

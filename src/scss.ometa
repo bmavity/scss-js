@@ -31,13 +31,17 @@ var createBlock = function(selector) {
   };
 
   that.toString = function(parent) {
-    var html = parent.indent + parent.selector + ' ' + selector + ' {\n';
+    var parentIndent = parent.indent,
+        currentIndent = parentIndent + '  ',
+        paddedParentSelector = parent.selector ? parent.selector + ' ' : '',
+        currentSelector = paddedParentSelector + selector,
+        html = parentIndent + paddedParentSelector + selector + ' {\n';
     for(var i = 0; i < properties.length; i += 1) {
-      html += parent.indent + '  ' + properties[i].name + ': ' + properties[i].val + ';\n';
+      html += currentIndent + properties[i].name + ': ' + properties[i].val + ';\n';
     }
-    html += parent.indent + '}\n';
+    html += parentIndent + '}\n';
     for(var j = 0; j < blocks.length; j += 1) {
-      html += blocks[j].toString({ indent: parent.indent + '  ', selector: parent.selector + ' ' + selector });
+      html += blocks[j].toString({ indent: currentIndent, selector: currentSelector });
     }
     return html;
   };
