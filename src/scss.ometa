@@ -91,7 +91,7 @@ var file = (function() {
 })();
 
 ometa Scss <: Parser {
-  selectorCharacters = letter+:chars -> chars.join(''),
+  selectorCharacters = letterOrDigit+:chars -> chars.join(''),
   selector = ('#' | '.' | ':'):pre selectorCharacters:sel -> (pre + sel)
            | selectorCharacters:sel -> sel,
   spacedSelector = space+ selector:sel -> (' ' + sel),
