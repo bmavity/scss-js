@@ -27,6 +27,7 @@ var vars = (function() {
 var createBlock = function(selector) {
   var blocks = [],
       properties = [],
+      selectors = [],
       that = {};
 
   var getPropertyValue = function(val) {
@@ -48,12 +49,22 @@ var createBlock = function(selector) {
     }
   };
 
+  that.addSelectors = function(additionalSelectors) {
+    for(var i = 0; i < additionalSelectors.length; i += 1) {
+      selectors.push(additionalSelectors[i]);
+    }
+  };
+
   that.toString = function(parent) {
     var parentIndent = parent.indent,
         currentIndent = parentIndent + '  ',
         paddedParentSelector = parent.selector ? parent.selector + ' ' : '',
         currentSelector = paddedParentSelector + selector,
-        css = parentIndent + paddedParentSelector + selector + ' {\n';
+        css = parentIndent + paddedParentSelector + selector;
+    for(var sel = 0; sel < selectors.length; sel += 1) {
+      css += ',\n' + parentIndent + paddedParentSelector + selectors[sel];
+    }
+    css += ' {\n';
     for(var i = 0; i < properties.length; i += 1) {
       css += currentIndent + properties[i].name + ': ' + getPropertyValue(properties[i].val) + ';\n';
     }
@@ -99,7 +110,7 @@ ometa Scss <: Parser {
   propertyValue = '$' letterOrDigit+:val -> ('$' + val.join(''))
                 | ('#' | '.' | ',' | '-' | space | letterOrDigit)+:val -> val.join(''),
   property = spaces ('-' | letter)+:prop ":" spaces propertyValue:val ";" -> ({ name: prop.join(''), val: val }),
-  scssBlock = spaces fullSelector:sel "{" property*:props scssBlock*:blocks "}" -> { var b = createBlock(sel); b.addProperty(props); b.addBlock(blocks); b },
+  scssBlock = spaces fullSelector:sel ("," spaces fullSelector)*:sels "{" property*:props scssBlock*:blocks "}" -> { var b = createBlock(sel); b.addSelectors(sels); b.addProperty(props); b.addBlock(blocks); b },
   scssVariable = "$" letter+:name ":" spaces propertyValue:val ";" -> ({ name:name.join(''), val:val }),
   scssFile = scssVariable*:scssVars scssBlock*:blocks -> { file.addBlocks(blocks); vars.add(scssVars); file }
 }
