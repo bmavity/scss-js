@@ -1,4 +1,4 @@
-@mixin a-mixin {
+@mixin a_mixin {
   color: green;
   div {
     float: left;
@@ -20,7 +20,7 @@
     }
   }
   .post-dash {
-    @include a-mixin;
+    @include a_mixin;
     color: red;
   }
 }

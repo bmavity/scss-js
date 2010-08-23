@@ -164,13 +164,13 @@ ometa Scss <: Parser {
            | selectorCharacters:sel -> sel,
   spacedSelector = space+ selector:sel -> (' ' + sel),
   fullSelector = selector:first (spacedSelector | selector)*:rest -> (first + rest.join('')),
-  mixinImport = "@include" spaces ('-' | letterOrDigit)+:name ";" -> name.join(''),
+  mixinImport = "@include" spaces ('-' | '_' | letterOrDigit)+:name ";" -> name.join(''),
   propertyValue = '$' letterOrDigit+:val -> ('$' + val.join(''))
                 | ('#' | '.' | ',' | '-' | space | letterOrDigit)+:val -> val.join(''),
   property = spaces ('-' | letter)+:prop ":" spaces propertyValue:val ";" -> ({ name: prop.join(''), val: val }),
   scssBlock = spaces fullSelector:sel ("," spaces fullSelector)*:sels "{" mixinImport*:imports property*:props scssBlock*:blocks "}" -> { var b = createBlock(sel); b.addImports(imports); b.addSelectors(sels); b.addProperty(props); b.addBlock(blocks); b },
   scssVariable = "$" letter+:name ":" spaces propertyValue:val ";" -> ({ name:name.join(''), val:val }),
-  scssMixin = "@mixin" spaces ('-' | letterOrDigit)+:name "{" property*:props scssBlock*:blocks "}" -> { var m = createMixin(name.join('')); m.addProperty(props); m.addBlock(blocks); mixins.add(m); },
+  scssMixin = "@mixin" spaces ('-' | '_' | letterOrDigit)+:name "{" property*:props scssBlock*:blocks "}" -> { var m = createMixin(name.join('')); m.addProperty(props); m.addBlock(blocks); mixins.add(m); },
   scssFile = scssVariable*:scssVars scssMixin*:mixins scssBlock*:blocks -> { file.addBlocks(blocks); vars.add(scssVars); file }
 }
 Scss
