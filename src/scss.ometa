@@ -44,7 +44,6 @@ var vars = (function() {
       that = {};
 
   that.add = function(props) {
-    //require('sys').puts(require('sys').inspect(props));
     for(var i = 0; i < props.length; i += 1) {
       inner[props[i].name] = props[i].val;
     }
@@ -129,6 +128,11 @@ var createBlock = function(selector) {
     for(var j = 0; j < blocks.length; j += 1) {
       css += blocks[j].toString({ indent: currentIndent, selector: currentSelector });
     }
+    for(var em = 0; em < embeddedMixins.length; em += 1) {
+      for(var p = 0; p < embeddedMixins[em].blocks.length; p += 1) {
+        css += embeddedMixins[em].blocks[p].toString({ indent: currentIndent, selector: currentSelector });
+      }
+    }
     return css;
   };
   
@@ -147,7 +151,6 @@ var file = (function() {
 
   that.toString = function() {
     var css = '';
-    //css += vars.toString() + '\n';
     for(var i = 0; i < blocks.length; i += 1) {
       css += blocks[i].toString({ indent: '', selector: '' });
       css += '\n';
