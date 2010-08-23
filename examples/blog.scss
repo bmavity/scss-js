@@ -1,3 +1,10 @@
+@mixin a-mixin {
+  color: green;
+  div {
+    float: left;
+  }
+}
+
 #main {
   margin: 0 5.625em;
   h5 {
@@ -13,6 +20,7 @@
     }
   }
   .post-dash {
+    @include a-mixin;
     color: red;
   }
 }

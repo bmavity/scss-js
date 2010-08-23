@@ -1,5 +1,46 @@
+var mixins = (function() {
+  var inner = {},
+      that = {};
+
+  that.add = function(mixin) {
+    inner[mixin.name] = mixin.mixin;
+  };
+
+  that.getMixin = function(name) {
+    return inner[name];
+  };
+
+  return that;
+})();
+
+var createMixin = function(name) {
+  var blocks = [],
+      properties = [],
+      that = {};
+
+  that.addProperty = function(props) {
+    for(var i = 0; i < props.length; i += 1) {
+      properties.push(props[i]);
+    }
+  };  
+
+  that.addBlock = function(childBlocks) {
+    for(var i = 0; i < childBlocks.length; i += 1) {
+      blocks.push(childBlocks[i]);
+    }
+  };
+
+  that.name = name;
+  that.mixin = {
+    properties: properties,
+    blocks: blocks
+  };
+
+  return that;
+};
+
 var vars = (function() {
-  var inner = {}
+  var inner = {},
       that = {};
 
   that.add = function(props) {
@@ -26,6 +67,7 @@ var vars = (function() {
 
 var createBlock = function(selector) {
   var blocks = [],
+      imports = [],
       properties = [],
       selectors = [],
       that = {};
@@ -55,18 +97,33 @@ var createBlock = function(selector) {
     }
   };
 
+  that.addImports = function(import) {
+    for(var i = 0; i < import.length; i += 1) {
+      imports.push(import[i]);
+    }
+  };
+
   that.toString = function(parent) {
     var parentIndent = parent.indent,
         currentIndent = parentIndent + '  ',
         paddedParentSelector = parent.selector ? parent.selector + ' ' : '',
         currentSelector = paddedParentSelector + selector,
-        css = parentIndent + paddedParentSelector + selector;
+        css = parentIndent + paddedParentSelector + selector,
+        embeddedMixins = [];
+    for(var mix = 0; mix < imports.length; mix += 1) {
+      embeddedMixins.push(mixins.getMixin(imports[mix]));
+    }
     for(var sel = 0; sel < selectors.length; sel += 1) {
       css += ',\n' + parentIndent + paddedParentSelector + selectors[sel];
     }
     css += ' {\n';
     for(var i = 0; i < properties.length; i += 1) {
       css += currentIndent + properties[i].name + ': ' + getPropertyValue(properties[i].val) + ';\n';
+    }
+    for(var em = 0; em < embeddedMixins.length; em += 1) {
+      for(var p = 0; p < embeddedMixins[em].properties.length; p += 1) {
+        css += currentIndent + embeddedMixins[em].properties[p].name + ': ' + getPropertyValue(embeddedMixins[em].properties[p].val) + ';\n';
+      }
     }
     css += parentIndent + '}\n';
     for(var j = 0; j < blocks.length; j += 1) {
@@ -107,12 +164,14 @@ ometa Scss <: Parser {
            | selectorCharacters:sel -> sel,
   spacedSelector = space+ selector:sel -> (' ' + sel),
   fullSelector = selector:first (spacedSelector | selector)*:rest -> (first + rest.join('')),
+  mixinImport = "@include" spaces ('-' | letterOrDigit)+:name ";" -> name.join(''),
   propertyValue = '$' letterOrDigit+:val -> ('$' + val.join(''))
                 | ('#' | '.' | ',' | '-' | space | letterOrDigit)+:val -> val.join(''),
   property = spaces ('-' | letter)+:prop ":" spaces propertyValue:val ";" -> ({ name: prop.join(''), val: val }),
-  scssBlock = spaces fullSelector:sel ("," spaces fullSelector)*:sels "{" property*:props scssBlock*:blocks "}" -> { var b = createBlock(sel); b.addSelectors(sels); b.addProperty(props); b.addBlock(blocks); b },
+  scssBlock = spaces fullSelector:sel ("," spaces fullSelector)*:sels "{" mixinImport*:imports property*:props scssBlock*:blocks "}" -> { var b = createBlock(sel); b.addImports(imports); b.addSelectors(sels); b.addProperty(props); b.addBlock(blocks); b },
   scssVariable = "$" letter+:name ":" spaces propertyValue:val ";" -> ({ name:name.join(''), val:val }),
-  scssFile = scssVariable*:scssVars scssBlock*:blocks -> { file.addBlocks(blocks); vars.add(scssVars); file }
+  scssMixin = "@mixin" spaces ('-' | letterOrDigit)+:name "{" property*:props scssBlock*:blocks "}" -> { var m = createMixin(name.join('')); m.addProperty(props); m.addBlock(blocks); mixins.add(m); },
+  scssFile = scssVariable*:scssVars scssMixin*:mixins scssBlock*:blocks -> { file.addBlocks(blocks); vars.add(scssVars); file }
 }
 Scss
 
