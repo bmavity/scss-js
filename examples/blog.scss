@@ -1,7 +1,17 @@
+$mainColor: green;
+
 @mixin a_mixin {
-  color: green;
+  color: $mainColor;
   div {
     float: left;
+  }
+}
+
+@mixin child {
+  @include a_mixin;
+  background-color: $mainColor;
+  a {
+    text-decoration: none;
   }
 }
 
@@ -20,7 +30,7 @@
     }
   }
   .post-dash {
-    @include a_mixin;
+    @include child;
     color: red;
   }
 }
