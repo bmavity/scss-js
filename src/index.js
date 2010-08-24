@@ -1,6 +1,6 @@
 var sys = require('sys'),
     fs = require('fs'),
-    ometa = require('../lib/ometa'),
+    ometa = require('ometa'),
     createdParser;
 
 var getParser = function(callback) {
