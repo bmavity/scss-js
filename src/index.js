@@ -30,7 +30,9 @@ var parse = function(scssFile, callback) {
       callback(err);
     } else {
       parser.parse(scssFile, function(err, css) {
-        callback(err, css.toString().replace(/\\n/g, '\n'));
+        require(__dirname + '/prettyPrint').render(css, function(inner, printed) {
+          callback(err, printed);
+        });
       });
     }
   });

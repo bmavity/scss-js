@@ -83,6 +83,8 @@ var createMixin = function(name) {
 
   that.name = name;
   that.mixin = {
+    blocks: blocks,
+    properties: properties,
     renderBlocks: renderBlocks,
     renderProperties: renderProperties
   };
@@ -175,6 +177,12 @@ var createBlock = function(selector) {
     }
     return css;
   };
+
+  that.selector = selector;
+  that.blocks = blocks;
+  that.mixins = imports;
+  that.properties = properties;
+  that.selectors = selectors;
   
   return that;
 };
@@ -198,8 +206,11 @@ var file = (function() {
     return css;
   };
 
+  that.blocks = blocks;
   that.vars = vars;
   that.mixins = mixins;
+  that.getMixin = mixins.getMixin;
+  that.getVal = vars.getVal;
 
   return that;
 })();
