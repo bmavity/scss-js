@@ -1,32 +1,3 @@
-var forEach = function(enumerable, callback) {
-  var i;
-  for(i = 0; i < enumerable.length; i += 1) {
-    callback(enumerable[i]);
-  }
-};
-
-var getPropertyValue = function(val) {
-  if(val.indexOf('$') == 0) {
-    return vars.getVal(val.replace('$', ''));
-  }
-  return val;
-};
-
-var mixins = (function() {
-  var inner = {},
-      that = {};
-
-  that.add = function(mixin) {
-    inner[mixin.name] = mixin.mixin;
-  };
-
-  that.getMixin = function(name) {
-    return inner[name];
-  };
-
-  return that;
-})();
-
 var createMixin = function(name) {
   var blocks = [],
       properties = [],
@@ -59,23 +30,6 @@ var createMixin = function(name) {
 
   return that;
 };
-
-var vars = (function() {
-  var inner = {},
-      that = {};
-
-  that.add = function(props) {
-    for(var i = 0; i < props.length; i += 1) {
-      inner[props[i].name] = props[i].val;
-    }
-  };
-
-  that.getVal = function(name) {
-    return inner[name];
-  };
-
-  return that;
-})();
 
 var createBlock = function(selector) {
   var blocks = [],
@@ -117,25 +71,6 @@ var createBlock = function(selector) {
   return that;
 };
 
-var file = (function() {
-  var blocks = [],
-      that = {};
-
-  that.addBlocks = function(childBlocks) {
-    for(var i = 0; i < childBlocks.length; i += 1) {
-      blocks.push(childBlocks[i]);
-    }
-  };
-
-  that.blocks = blocks;
-  that.vars = vars;
-  that.mixins = mixins;
-  that.getMixin = mixins.getMixin;
-  that.getVal = vars.getVal;
-
-  return that;
-})();
-
 ometa Scss <: Parser {
   selectorCharacters = ('-' | letterOrDigit)+:chars -> chars.join(''),
   selector = ('#' | '.' | ':'):pre selectorCharacters:sel -> (pre + sel)
@@ -147,9 +82,43 @@ ometa Scss <: Parser {
                 | ('#' | '.' | ',' | '-' | space | letterOrDigit)+:val -> val.join(''),
   property = spaces ('-' | letter)+:prop ":" spaces propertyValue:val ";" -> ({ name: prop.join(''), val: val }),
   scssBlock = spaces fullSelector:sel ("," spaces fullSelector)*:sels "{" mixinImport*:imports property*:props scssBlock*:blocks "}" -> { var b = createBlock(sel); b.addImports(imports); b.addSelectors(sels); b.addProperty(props); b.addBlock(blocks); b },
-  scssVariable = "$" letter+:name ":" spaces propertyValue:val ";" -> ({ name:name.join(''), val:val }),
-  scssMixin = "@mixin" spaces ('-' | '_' | letterOrDigit)+:name "{" mixinImport*:imports property*:props scssBlock*:blocks "}" -> { var m = createMixin(name.join('')); m.addImport(imports); m.addProperty(props); m.addBlock(blocks); mixins.add(m); },
-  scssFile = scssVariable*:scssVars scssMixin*:mixins scssBlock*:blocks -> { file.addBlocks(blocks); vars.add(scssVars); file }
+  scssVariable = "$" letter+:name ":" spaces propertyValue:val ";" -> (self.addVariable({ name:name.join(''), val:val })),
+  scssMixin = "@mixin" spaces ('-' | '_' | letterOrDigit)+:name "{" mixinImport*:imports property*:props scssBlock*:blocks "}" -> { var m = createMixin(name.join('')); m.addImport(imports); m.addProperty(props); m.addBlock(blocks); self.addMixin(m); },
+  scssFile = scssVariable*:scssVars scssMixin*:mixins scssBlock*:blocks -> { self.addBlocks(blocks); self }
 }
-Scss
 
+Scss.initialize = function() {
+  var blocks = [],
+      mixins = {},
+      variables = {},
+      currentBlock;
+
+  this.addBlocks = function(childBlocks) {
+    for(var i = 0; i < childBlocks.length; i += 1) {
+      blocks.push(childBlocks[i]);
+    }
+  };
+
+  this.blocks = blocks;
+
+  this.addBlock = function(block) {
+  };
+
+  this.addMixin = function(mixin) {
+    mixins[mixin.name] = mixin.mixin;
+  };
+
+  this.addVariable = function(variable) {
+    variables[variable.name] = variable.val;
+  };
+
+  this.getMixin = function(mixinName) {
+    return mixins[mixinName];
+  };
+
+  this.getValue = function(variableName) {
+    return variables[variableName];
+  };
+};
+
+Scss

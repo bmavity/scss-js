@@ -1,7 +1,7 @@
 function renderProperty(fileObj, propertyObj) {
   var getPropertyValue = function(val) {
     if(val.indexOf('$') == 0) {
-      return fileObj.getVal(val.replace('$', ''));
+      return fileObj.getValue(val.replace('$', ''));
     }
     return val;
   };
