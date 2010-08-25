@@ -25,6 +25,7 @@ var createMixin = function(name) {
   that.name = name;
   that.mixin = {
     blocks: blocks,
+    includes: imports,
     properties: properties
   };
 
@@ -64,7 +65,7 @@ var createBlock = function(selector) {
 
   that.selector = selector;
   that.blocks = blocks;
-  that.mixins = imports;
+  that.includes = imports;
   that.properties = properties;
   that.selectors = selectors;
   

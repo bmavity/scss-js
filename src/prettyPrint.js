@@ -33,11 +33,10 @@ function renderBlock(fileObj, blockObj, scope) {
       mixin.blocks.forEach(function(block) {
         blocks.push(block);
       });
-      expandMixins(mixin.includes);
+      expandIncludes(mixin.includes);
     });
   };
   expandIncludes(includes);
-  require('sys').puts(JSON.stringify(includes));
 
   selectors.forEach(function(sel) {
     css += ',\n' + scopeIndent + paddedScopeSelector + sel;
