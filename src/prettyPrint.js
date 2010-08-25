@@ -18,21 +18,26 @@ function renderBlock(fileObj, blockObj, scope) {
       selectors = blockObj.selectors,
       properties = blockObj.properties,
       blocks = blockObj.blocks,
-      mixins = blockObj.mixins,
+      includes = blockObj.includes,
       css = scopeIndent + currentSelector;
 
-  mixins.forEach(function(mixinName) {
-    var mixin = fileObj.getMixin(mixinName);
-    //Why doesn't .concat() work?
-    //properties.concat(mixin.properties);
-    //blocks.concat(mixin.blocks);
-    mixin.properties.forEach(function(property) {
-      properties.push(property);
+  var expandIncludes = function(includeNames) {
+    includeNames.forEach(function(includeName) {
+      var mixin = fileObj.getMixin(includeName);
+      //Why doesn't .concat() work?
+      //properties.concat(mixin.properties);
+      //blocks.concat(mixin.blocks);
+      mixin.properties.forEach(function(property) {
+        properties.push(property);
+      });
+      mixin.blocks.forEach(function(block) {
+        blocks.push(block);
+      });
+      expandMixins(mixin.includes);
     });
-    mixin.blocks.forEach(function(block) {
-      blocks.push(block);
-    });
-  });
+  };
+  expandIncludes(includes);
+  require('sys').puts(JSON.stringify(includes));
 
   selectors.forEach(function(sel) {
     css += ',\n' + scopeIndent + paddedScopeSelector + sel;
