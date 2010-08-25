@@ -17,7 +17,6 @@ var mixins = (function() {
       that = {};
 
   that.add = function(mixin) {
-    require('sys').puts(JSON.stringify(mixin));
     inner[mixin.name] = mixin.mixin;
   };
 
