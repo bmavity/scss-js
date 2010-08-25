@@ -198,6 +198,9 @@ var file = (function() {
     return css;
   };
 
+  that.vars = vars;
+  that.mixins = mixins;
+
   return that;
 })();
 
