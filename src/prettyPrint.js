@@ -15,7 +15,7 @@ function renderBlock(fileObj, blockObj, scope) {
       currentIndent = scopeIndent + '  ',
       paddedScopeSelector = (scope && scope.selector) ? scope.selector + ' ' : '',
       currentSelector = paddedScopeSelector + selector,
-      selectors = blockObj.selectors || [],
+      selectors = blockObj.selectors,
       properties = blockObj.properties,
       blocks = blockObj.blocks,
       includes = blockObj.includes,

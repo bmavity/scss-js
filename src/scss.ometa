@@ -4,13 +4,14 @@ ometa Scss <: Parser {
            | selectorCharacters:sel -> sel,
   spacedSelector = space+ selector:sel -> (' ' + sel),
   fullSelector = selector:first (spacedSelector | selector)*:rest -> { self.addSelector(first + rest.join('')); },
+  secondarySelector = "," spaces selector:first (spacedSelector | selector)*:rest -> { self.addAdditionalSelector(first + rest.join('')); },
   
   propertyValue = '$' letterOrDigit+:val -> ('$' + val.join(''))
                 | ('#' | '.' | ',' | '-' | space | letterOrDigit)+:val -> val.join(''),
   property = spaces ('-' | letter)+:prop ":" spaces propertyValue:val ";" -> { self.addProperty({ name: prop.join(''), val: val }); },
 
   blockBody = "{" (mixinInclude | property | scssBlock)* "}" -> { self.endBlock(); },
-  scssBlock = spaces fullSelector:sel blockBody,
+  scssBlock = spaces fullSelector secondarySelector* blockBody,
 
   scssVariable = "$" letter+:name ":" spaces propertyValue:val ";" -> { self.addVariable({ name: name.join(''), val: val }); },
 
@@ -28,10 +29,7 @@ Scss.initialize = function() {
       variables = {},
       file,
       currentBlock;
-      var sys = require('sys');
-var a = function(msg) {
-  sys.puts('add ' + msg + ' to block "' + currentBlock.selector + '"');
-};
+  
   var createBlock = function() {
     var parentBlock = currentBlock;
     return {
@@ -44,39 +42,37 @@ var a = function(msg) {
     };
   };
 
+  this.addAdditionalSelector = function(selector) {
+    currentBlock.selectors.push(selector);
+  };
+
   this.addMixin = function(mixinName) {
-    sys.puts('adding mixin ' + mixinName);
     var block = createBlock();
     mixins[mixinName] = block;
     currentBlock = block;
   };
 
   this.addProperty = function(prop) {
-    a('property "' + prop.name + '"');
     currentBlock.properties.push(prop);
   };
 
   this.addInclude = function(include) {
-    a('include "' + include + '"');
     currentBlock.includes.push(include);
   };
 
   this.addSelector = function(sel) {
-    sys.puts('adding selector ' + sel);
     var block = createBlock();
     block.selector = sel;
+    block.selectors = [];
     currentBlock.blocks.push(block);
     currentBlock = block;
   };
 
   this.endBlock = function() {
-    sys.puts('ending block ' + currentBlock.selector);
     currentBlock.end();
-    sys.puts('rolled back to block ' + currentBlock.selector);
   };
 
   this.addVariable = function(variable) {
-    sys.puts('adding variable ' + variable.name);
     variables[variable.name] = variable.val;
   };
 
