@@ -1,125 +1,102 @@
-var createMixin = function(name) {
-  var blocks = [],
-      properties = [],
-      imports = [],
-      that = {};
-
-  that.addProperty = function(props) {
-    for(var i = 0; i < props.length; i += 1) {
-      properties.push(props[i]);
-    }
-  };  
-
-  that.addBlock = function(childBlocks) {
-    for(var i = 0; i < childBlocks.length; i += 1) {
-      blocks.push(childBlocks[i]);
-    }
-  };
-
-  that.addImport = function(import) {
-    for(var i = 0; i < import.length; i += 1) {
-      imports.push(import[i]);
-    }
-  };
-
-  that.name = name;
-  that.mixin = {
-    blocks: blocks,
-    includes: imports,
-    properties: properties
-  };
-
-  return that;
-};
-
-var createBlock = function(selector) {
-  var blocks = [],
-      imports = [],
-      properties = [],
-      selectors = [],
-      that = {};
-
-  that.addProperty = function(props) {
-    for(var i = 0; i < props.length; i += 1) {
-      properties.push(props[i]);
-    }
-  };  
-
-  that.addBlock = function(childBlocks) {
-    for(var i = 0; i < childBlocks.length; i += 1) {
-      blocks.push(childBlocks[i]);
-    }
-  };
-
-  that.addSelectors = function(additionalSelectors) {
-    for(var i = 0; i < additionalSelectors.length; i += 1) {
-      selectors.push(additionalSelectors[i]);
-    }
-  };
-
-  that.addImports = function(import) {
-    for(var i = 0; i < import.length; i += 1) {
-      imports.push(import[i]);
-    }
-  };
-
-  that.selector = selector;
-  that.blocks = blocks;
-  that.includes = imports;
-  that.properties = properties;
-  that.selectors = selectors;
-  
-  return that;
-};
-
 ometa Scss <: Parser {
   selectorCharacters = ('-' | letterOrDigit)+:chars -> chars.join(''),
   selector = ('#' | '.' | ':'):pre selectorCharacters:sel -> (pre + sel)
            | selectorCharacters:sel -> sel,
   spacedSelector = space+ selector:sel -> (' ' + sel),
-  fullSelector = selector:first (spacedSelector | selector)*:rest -> (first + rest.join('')),
-  mixinImport = "@include" spaces ('-' | '_' | letterOrDigit)+:name ";" -> name.join(''),
+  fullSelector = selector:first (spacedSelector | selector)*:rest -> { self.addSelector(first + rest.join('')); },
+  
   propertyValue = '$' letterOrDigit+:val -> ('$' + val.join(''))
                 | ('#' | '.' | ',' | '-' | space | letterOrDigit)+:val -> val.join(''),
-  property = spaces ('-' | letter)+:prop ":" spaces propertyValue:val ";" -> ({ name: prop.join(''), val: val }),
-  scssBlock = spaces fullSelector:sel ("," spaces fullSelector)*:sels "{" mixinImport*:imports property*:props scssBlock*:blocks "}" -> { var b = createBlock(sel); b.addImports(imports); b.addSelectors(sels); b.addProperty(props); b.addBlock(blocks); b },
-  scssVariable = "$" letter+:name ":" spaces propertyValue:val ";" -> (self.addVariable({ name:name.join(''), val:val })),
-  scssMixin = "@mixin" spaces ('-' | '_' | letterOrDigit)+:name "{" mixinImport*:imports property*:props scssBlock*:blocks "}" -> { var m = createMixin(name.join('')); m.addImport(imports); m.addProperty(props); m.addBlock(blocks); self.addMixin(m); },
-  scssFile = scssVariable*:scssVars scssMixin*:mixins scssBlock*:blocks -> { self.addBlocks(blocks); self }
+  property = spaces ('-' | letter)+:prop ":" spaces propertyValue:val ";" -> { self.addProperty({ name: prop.join(''), val: val }); },
+
+  blockBody = "{" (mixinInclude | property | scssBlock)* "}" -> { self.endBlock(); },
+  scssBlock = spaces fullSelector:sel blockBody,
+
+  scssVariable = "$" letter+:name ":" spaces propertyValue:val ";" -> { self.addVariable({ name: name.join(''), val: val }); },
+
+  mixinName = spaces ('-' | '_' | letterOrDigit)+:name -> name.join(''),
+  mixinInclude = "@include" mixinName:name ";" -> { self.addInclude(name); },
+  mixinDeclaration = "@mixin" mixinName:name -> { self.addMixin(name); },
+  scssMixin = mixinDeclaration blockBody,
+
+  scssFile = (scssVariable | scssMixin | scssBlock)* -> { self.getFile(); }
 }
 
 Scss.initialize = function() {
   var blocks = [],
       mixins = {},
       variables = {},
+      file,
       currentBlock;
-
-  this.addBlocks = function(childBlocks) {
-    for(var i = 0; i < childBlocks.length; i += 1) {
-      blocks.push(childBlocks[i]);
-    }
+      var sys = require('sys');
+var a = function(msg) {
+  sys.puts('add ' + msg + ' to block "' + currentBlock.selector + '"');
+};
+  var createBlock = function() {
+    var parentBlock = currentBlock;
+    return {
+      blocks: [],
+      includes: [],
+      properties: [],
+      end: function() {
+        currentBlock = parentBlock;
+      }
+    };
   };
 
-  this.blocks = blocks;
-
-  this.addBlock = function(block) {
+  this.addMixin = function(mixinName) {
+    sys.puts('adding mixin ' + mixinName);
+    var block = createBlock();
+    mixins[mixinName] = block;
+    currentBlock = block;
   };
 
-  this.addMixin = function(mixin) {
-    mixins[mixin.name] = mixin.mixin;
+  this.addProperty = function(prop) {
+    a('property "' + prop.name + '"');
+    currentBlock.properties.push(prop);
+  };
+
+  this.addInclude = function(include) {
+    a('include "' + include + '"');
+    currentBlock.includes.push(include);
+  };
+
+  this.addSelector = function(sel) {
+    sys.puts('adding selector ' + sel);
+    var block = createBlock();
+    block.selector = sel;
+    currentBlock.blocks.push(block);
+    currentBlock = block;
+  };
+
+  this.endBlock = function() {
+    sys.puts('ending block ' + currentBlock.selector);
+    currentBlock.end();
+    sys.puts('rolled back to block ' + currentBlock.selector);
   };
 
   this.addVariable = function(variable) {
+    sys.puts('adding variable ' + variable.name);
     variables[variable.name] = variable.val;
   };
 
-  this.getMixin = function(mixinName) {
-    return mixins[mixinName];
+  this.getFile = function() {
+    return file;
   };
 
-  this.getValue = function(variableName) {
-    return variables[variableName];
+  file = {
+    blocks: [],
+    end: function() {
+      currentBlock = file;
+    },
+    getMixin: function(mixinName) {
+      return mixins[mixinName];
+    },
+    getValue: function(variableName) {
+      return variables[variableName];
+    }
   };
+  currentBlock = file;
 };
 
 Scss

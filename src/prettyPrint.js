@@ -15,12 +15,12 @@ function renderBlock(fileObj, blockObj, scope) {
       currentIndent = scopeIndent + '  ',
       paddedScopeSelector = (scope && scope.selector) ? scope.selector + ' ' : '',
       currentSelector = paddedScopeSelector + selector,
-      selectors = blockObj.selectors,
+      selectors = blockObj.selectors || [],
       properties = blockObj.properties,
       blocks = blockObj.blocks,
       includes = blockObj.includes,
       css = scopeIndent + currentSelector;
-
+  
   var expandIncludes = function(includeNames) {
     includeNames.forEach(function(includeName) {
       var mixin = fileObj.getMixin(includeName);
@@ -63,7 +63,7 @@ function renderBlock(fileObj, blockObj, scope) {
 function renderFile(fileObj) {
   var blocks = fileObj.blocks,
       css = '';
-  
+
   blocks.forEach(function(block) {
     css += renderBlock(fileObj, block);
     css += '\n';
