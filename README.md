@@ -1,5 +1,13 @@
 # scss-js
-## A JavaScript implementations of scss using OMeta/JS
+## A JavaScript implementation of SCSS (Sassy CSS)
+
+## Special Thanks
+
+I would like to give special thanks to [Hampton Catlin](http://hamptoncatlin.com),
+[Nathan Weizenbaum](http://nex-3.com), and [Chris Eppstein](http://acts-as-architect.blogspot.com)
+for starting and continuing the haml and sass project. I'd also like to thank the rest of the people
+that have contributed to [Sass](http://sass-lang.com/) and I hope I can catch up to your
+awesomeness.
 
 ## Modified MIT License
 
