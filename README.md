@@ -1,6 +1,47 @@
 # scss-js
 ## A JavaScript implementation of SCSS (Sassy CSS)
 
+## API
+
+### Connect Compiler
+
+    var sys = require('sys'),
+        fs = require('fs'),
+        compiler = require('../src/scssCompiler');
+    
+    fs.readFile(__dirname + '/blog.scss', function(err, scssFile) {
+      compiler.compile(scssFile.toString(), function(err, css) {
+        if(err) {
+          sys.puts(sys.inspect(err));
+        } else {
+          sys.puts(css);
+        }
+      });
+    });
+
+The compile function takes a string and returns another string with the file's css.
+
+## Where Does the Project Stand?
+
+### What's Usable?
+  * CSS Selectors
+  * Nested Rules
+  * Variables
+  * Fixed Mixins
+
+### What Needs Work
+  * CSS Selectors
+  * Variable and Mixin names
+
+### What is Unimplemented?
+  * Parameterized Mixins
+  * Functions
+
+## Next Release (0.2.0)
+
+Full CSS Selector implementation
+
+
 ## Special Thanks
 
 I would like to give special thanks to [Hampton Catlin](http://hamptoncatlin.com),
