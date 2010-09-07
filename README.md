@@ -33,7 +33,7 @@ The compile function takes a string and returns another string with the file's c
   * CSS Selectors
   * Variable and Mixin names
 
-### What is Unimplemented?
+### What's Unimplemented?
   * Parameterized Mixins
   * Functions
 
