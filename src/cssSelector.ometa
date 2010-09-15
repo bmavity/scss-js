@@ -1,0 +1,89 @@
+ometa CssSelector <: Parser {
+  crChar = '\r',
+  ffChar = '\f',
+  nlChar = '\n',
+  tabChar = '\t',
+  lineEnding = crChar | ffChar | nlChar,
+  tabOrLineEnding = tabChar | lineEnding,
+
+
+  ident = '-' nmstart nmchar* 
+        | nmstart nmchar*,
+  name = nmchar+,
+  nmstart = '_' | letter | nonascii | escape,
+  nonascii = '',
+  unicode = '',
+  escape = unicode | '',
+  nmchar = '_' | '-' | letterOrDigit | nonascii | escape,
+  num = digit+: d -> d.join('')
+      | digit* '.' digit+,
+  string = string1 | string2,
+  string1 = '"' (~(lineEnding | '"') | '\\' nl | nonascii | escape)* '"',
+  string2 = '\'' (~(lineEnding | '\'') | '\\' nl | nonascii | escape)* '\'',
+  invalid = invalid1 | invalid2,
+  invalid1 = '"' (~(lineEnding | '"') | '\\' nl | nonascii | escape)*,
+  invalid2 = '\'' (~(lineEnding | '\'') | '\\' nl | nonascii | escape)*,
+  nl = crChar nlChar
+     | lineEnding,
+  w = (' ' | tabOrLineEnding)*,
+  D = 'd' | 'D',
+  E = 'e' | 'E',
+  N = 'n' | 'N',
+  O = 'o' | 'O',
+  T = 't' | 'T',
+  V = 'v' | 'V',
+
+
+  S = ' ' | tabOrLineEnding,
+  INCLUDES = '~' '=',
+  DASHMATCH = '|' '=',
+  PREFIXMATCH = '^' '=',
+  SUFFIXMATCH = '$' '=',
+  SUBSTRINGMATCH = '*' '=',
+  IDENT = ident,
+  STRING = string,
+  FUNCTION = ident '(',
+  NUMBER = num,
+  HASH = '#' name,
+  PLUS = w '+',
+  GREATER = w '>',
+  COMMA = w ',',
+  TILDE = w '~',
+  NOT = ':' N O T '(',
+  ATKEYWORD = '@' ident,
+  INVALID = invalid,
+  PERCENTAGE = num '%',
+  DIMENSION = num ident,
+  CDO = '<' '!' '-' '-',
+  CDC = '-' '-' '>',
+
+
+  selectors_group = selector (COMMA S* selector)*,
+  selector = simple_selector_sequence (combinator simple_selector_sequence)*,
+  combinator = PLUS S*
+             | GREATER S*
+             | TILDE S*
+             | S+,
+  simple_selector_sequence = (type_selector | universal) (HASH | class | attrib | pseudo | negation)*
+                           | (HASH | class | attrib | pseudo | negation)+,
+  type_selector = namespace_prefix element_name
+                | element_name,
+  namespace_prefix = (IDENT | '*') '|'
+                   | '|',
+  element_name = IDENT,
+  universal = namespace_prefix '*'
+            | '*',
+  class = '.' IDENT,
+
+  attrib = '[' S* possible_namespaced_attrib ']',
+  possible_namespaced_attrib = namespace_prefix ident_with_possible_postfix
+                             | ident_with_possible_postfix,
+  ident_with_possible_postfix = IDENT S* (PREFIXMATCH | SUFFIXMATCH | SUBSTRINGMATCH | '=' | INCLUDES | DASHMATCH) S* (IDENT | STRING) S*
+                              | IDENT S*,
+  pseudo = ':' ':' (IDENT | functional_pseudo)
+         | ':' (IDENT | functional_pseudo),
+  functional_pseudo = FUNCTION S* expression ')' -> 'h',
+  expression = ((PLUS | '-' | DIMENSION | NUMBER | STRING | IDENT) S*)+,
+  negation = NOT S* negation_arg S* ')',
+  negation_arg = type_selector | universal | HASH | class | attrib | pseudo
+}
