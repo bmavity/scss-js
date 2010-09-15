@@ -16,7 +16,7 @@ var getParser = function(callback) {
             createdParser = parser;
             callback(null, createdParser);
           }
-        }, 'selectors_group');
+        });
       }
     });
   } else {
@@ -29,7 +29,7 @@ var parse = function(scssFile, callback) {
     if(err) {
       callback(err);
     } else {
-      parser.parse(scssFile, function(err, css) {
+      parser.parse(scssFile, 'selectors_group', function(err, css) {
         sys.puts(css.toString());
       });
     }
