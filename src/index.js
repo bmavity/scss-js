@@ -1,6 +1,7 @@
 var sys = require('sys'),
     fs = require('fs'),
     ometa = require('ometa'),
+    rule = 'scssFile',
     createdParser;
 
 var getParser = function(callback) {
@@ -29,7 +30,7 @@ var parse = function(scssFile, callback) {
     if(err) {
       callback(err);
     } else {
-      parser.parse(scssFile, function(err, css) {
+      parser.parse(scssFile, rule, function(err, css) {
         require(__dirname + '/prettyPrint').render(css, function(inner, printed) {
           callback(err, printed);
         });
