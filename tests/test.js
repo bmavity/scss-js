@@ -66,6 +66,7 @@ vows.describe('Summarized Selectors').addBatch({
   'E ~ F': shouldParse()
 }).run();
 
+
 vows.describe('Lonely Selectors').addBatch({
   // Taken from http://www.w3.org/TR/css3-selectors/#selectors,
   // but without the element names
@@ -108,15 +109,15 @@ vows.describe('Lonely Selectors').addBatch({
   ':not(s)': shouldParse()
 }).run();
 
-/*
-  def test_attribute_selectors_with_identifiers
-    assert_selector_parses('[foo~=bar]')
-    assert_selector_parses('[foo^=bar]')
-    assert_selector_parses('[foo$=bar]')
-    assert_selector_parses('[foo*=bar]')
-    assert_selector_parses('[foo|=en]')
-  end
 
+vows.describe('Attribute Selectors with Identifiers').addBatch({
+  '[foo~=bar]': shouldParse(),
+  '[foo^=bar]': shouldParse(),
+  '[foo$=bar]': shouldParse(),
+  '[foo*=bar]': shouldParse(),
+  '[foo|=en]': shouldParse()
+}).run();
+/*
   def test_nth_selectors
     assert_selector_parses(':nth-child(-n)')
     assert_selector_parses(':nth-child(+n)')
