@@ -24,7 +24,6 @@ vows.describe('Summarized Selectors').addBatch({
   '*': shouldParse(),
   'E': shouldParse(),
   'E[foo]': shouldParse(),
-  'E[foo=bar]': shouldParse(),
   'E[foo="bar"]': shouldParse(),
   'E[foo~="bar"]': shouldParse(),
   'E[foo^="bar"]': shouldParse(),
@@ -117,33 +116,38 @@ vows.describe('Attribute Selectors with Identifiers').addBatch({
   '[foo*=bar]': shouldParse(),
   '[foo|=en]': shouldParse()
 }).run();
+
 /*
-  def test_nth_selectors
-    assert_selector_parses(':nth-child(-n)')
-    assert_selector_parses(':nth-child(+n)')
+vows.describe('Nth Selectors').addBatch({
+  ':nth-child(-n)': shouldParse(),
+  ':nth-child(+n)': shouldParse(),
 
-    assert_selector_parses(':nth-child(even)')
-    assert_selector_parses(':nth-child(odd)')
+  ':nth-child(even)': shouldParse(),
+  ':nth-child(odd)': shouldParse(),
 
-    assert_selector_parses(':nth-child(50)')
-    assert_selector_parses(':nth-child(-50)')
-    assert_selector_parses(':nth-child(+50)')
+  ':nth-child(50)': shouldParse(),
+  ':nth-child(-50)': shouldParse(),
+  ':nth-child(+50)': shouldParse(),
 
-    assert_selector_parses(':nth-child(2n+3)')
-    assert_selector_parses(':nth-child(2n-3)')
-    assert_selector_parses(':nth-child(+2n-3)')
-    assert_selector_parses(':nth-child(-2n+3)')
-    assert_selector_parses(':nth-child(-2n+ 3)')
+  ':nth-child(2n+3)': shouldParse(),
+  ':nth-child(2n-3)': shouldParse(),
+  ':nth-child(+2n-3)': shouldParse(),
+  ':nth-child(-2n+3)': shouldParse(),
+  ':nth-child(-2n+ 3)': shouldParse()
+/*
+  assert_equal(<<CSS, render(<<SCSS))
 
-    assert_equal(<<CSS, render(<<SCSS))
 :nth-child(2n + 3) {
 a: b; }
 CSS
 :nth-child( 2n + 3 ) {
 a: b; }
 SCSS
-  end
 
+}).run();
+
+
+/*
   def test_negation_selectors
     assert_selector_parses(':not(foo|bar)')
     assert_selector_parses(':not(*|bar)')
