@@ -117,7 +117,7 @@ vows.describe('Attribute Selectors with Identifiers').addBatch({
   '[foo|=en]': shouldParse()
 }).run();
 
-/*
+
 vows.describe('Nth Selectors').addBatch({
   ':nth-child(-n)': shouldParse(),
   ':nth-child(+n)': shouldParse(),
@@ -143,7 +143,7 @@ CSS
 :nth-child( 2n + 3 ) {
 a: b; }
 SCSS
-
+*/
 }).run();
 
 
