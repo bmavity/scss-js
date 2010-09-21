@@ -21,11 +21,11 @@ ometa CssSelector <: Parser {
       | digit* '.' digit+,
   string = (string1 | string2):s -> { s },
   //string1 = '\"' (~(lineEnding | '\"') | '\\' nl | nonascii | escape)*:s '\"' -> { '\"' + s.join('') + '\"' },
-  string1 = '\"' ~'\"'*:s '\"' -> { sys.puts(s.join('')); s },
+  string1 = '"' letter*:s '"' -> { '"' + s.join('') + '"' },
   string2 = '\'' (~(lineEnding | '\'') | '\\' nl | nonascii | escape)*:s '\'' -> { '\'' + s.join('') + '\'' },
-  invalid = invalid1 | invalid2,
-  invalid1 = '\"' (~(lineEnding | '\"') | '\\' nl | nonascii | escape)*,
-  invalid2 = '\'' (~(lineEnding | '\'') | '\\' nl | nonascii | escape)*,
+  //invalid = invalid1 | invalid2,
+  //invalid1 = '\"' (~(lineEnding | '\"') | '\\' nl | nonascii | escape)*,
+  //invalid2 = '\'' (~(lineEnding | '\'') | '\\' nl | nonascii | escape)*,
   nl = crChar nlChar
      | lineEnding,
   w = (' ' | tabOrLineEnding)*,
@@ -38,11 +38,11 @@ ometa CssSelector <: Parser {
 
 
   S = ' ' | tabOrLineEnding,
-  INCLUDES = '~' '=',
-  DASHMATCH = '|' '=',
-  PREFIXMATCH = '^' '=',
-  SUFFIXMATCH = '$' '=',
-  SUBSTRINGMATCH = '*' '=',
+  INCLUDES = '~' '=' -> { '~=' },
+  DASHMATCH = '|' '=' -> { '|=' },
+  PREFIXMATCH = '^' '=' -> { '^=' },
+  SUFFIXMATCH = '$' '=' -> { '$=' },
+  SUBSTRINGMATCH = '*' '=' -> { '*=' },
   IDENT = ident,
   STRING = string:s -> { s },
   FUNCTION = ident:i '(' -> { i + '(' },
@@ -85,8 +85,10 @@ ometa CssSelector <: Parser {
   attrib = '[' S* possible_namespaced_attrib:att ']' -> { '[' + att + ']' },
   possible_namespaced_attrib = namespace_prefix:pre ident_with_possible_postfix:post -> { pre + post }
                              | ident_with_possible_postfix:post -> { post },
-  ident_with_possible_postfix = IDENT:left S* (PREFIXMATCH | SUFFIXMATCH | SUBSTRINGMATCH | '=' | INCLUDES | DASHMATCH):match S* (IDENT | STRING):right S* -> { left + match + right }
+  ident_with_possible_postfix = IDENT:left S* attrib_match:match S* (IDENT | STRING):right S* -> { left + match + right }
                               | IDENT:i S* -> { i },
+  attrib_match = (PREFIXMATCH | SUFFIXMATCH | SUBSTRINGMATCH | equals_match | INCLUDES | DASHMATCH):m -> { m },
+  equals_match = '=' -> { '=' },
   pseudo = ':' ':' (functional_pseudo | IDENT):i -> { '::' + i }
          | ':' (functional_pseudo | IDENT):i -> { ':' + i },
   functional_pseudo = FUNCTION:f S* expression:e ')' -> { f + e + ')' },
