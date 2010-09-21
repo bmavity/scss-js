@@ -18,13 +18,13 @@ var shouldParse = function() {
   return context;
 };
 
-vows.describe('CSS Selector grammar').addBatch({
-// Selectors
-
+vows.describe('Summarized Selectors').addBatch({
   // Taken from http://www.w3.org/TR/css3-selectors/#selectors
+
   '*': shouldParse(),
   'E': shouldParse(),
   'E[foo]': shouldParse(),
+  'E[foo=bar]': shouldParse(),
   'E[foo="bar"]': shouldParse(),
   'E[foo~="bar"]': shouldParse(),
   'E[foo^="bar"]': shouldParse(),
@@ -64,49 +64,51 @@ vows.describe('CSS Selector grammar').addBatch({
   'E > F': shouldParse(),
   'E + F': shouldParse(),
   'E ~ F': shouldParse()
+}).run();
 
+vows.describe('Lonely Selectors').addBatch({
   // Taken from http://www.w3.org/TR/css3-selectors/#selectors,
   // but without the element names
-  /*
-  def test_lonely_selectors
-    assert_selector_parses('[foo]')
-    assert_selector_parses('[foo="bar"]')
-    assert_selector_parses('[foo~="bar"]')
-    assert_selector_parses('[foo^="bar"]')
-    assert_selector_parses('[foo$="bar"]')
-    assert_selector_parses('[foo*="bar"]')
-    assert_selector_parses('[foo|="en"]')
-    assert_selector_parses(':root')
-    assert_selector_parses(':nth-child(n)')
-    assert_selector_parses(':nth-last-child(n)')
-    assert_selector_parses(':nth-of-type(n)')
-    assert_selector_parses(':nth-last-of-type(n)')
-    assert_selector_parses(':first-child')
-    assert_selector_parses(':last-child')
-    assert_selector_parses(':first-of-type')
-    assert_selector_parses(':last-of-type')
-    assert_selector_parses(':only-child')
-    assert_selector_parses(':only-of-type')
-    assert_selector_parses(':empty')
-    assert_selector_parses(':link')
-    assert_selector_parses(':visited')
-    assert_selector_parses(':active')
-    assert_selector_parses(':hover')
-    assert_selector_parses(':focus')
-    assert_selector_parses(':target')
-    assert_selector_parses(':lang(fr)')
-    assert_selector_parses(':enabled')
-    assert_selector_parses(':disabled')
-    assert_selector_parses(':checked')
-    assert_selector_parses('::first-line')
-    assert_selector_parses('::first-letter')
-    assert_selector_parses('::before')
-    assert_selector_parses('::after')
-    assert_selector_parses('.warning')
-    assert_selector_parses('#myid')
-    assert_selector_parses(':not(s)')
-  end
 
+  '[foo]': shouldParse(),
+  '[foo="bar"]': shouldParse(),
+  '[foo~="bar"]': shouldParse(),
+  '[foo^="bar"]': shouldParse(),
+  '[foo$="bar"]': shouldParse(),
+  '[foo*="bar"]': shouldParse(),
+  '[foo|="en"]': shouldParse(),
+  ':root': shouldParse(),
+  ':nth-child(n)': shouldParse(),
+  ':nth-last-child(n)': shouldParse(),
+  ':nth-of-type(n)': shouldParse(),
+  ':nth-last-of-type(n)': shouldParse(),
+  ':first-child': shouldParse(),
+  ':last-child': shouldParse(),
+  ':first-of-type': shouldParse(),
+  ':last-of-type': shouldParse(),
+  ':only-child': shouldParse(),
+  ':only-of-type': shouldParse(),
+  ':empty': shouldParse(),
+  ':link': shouldParse(),
+  ':visited': shouldParse(),
+  ':active': shouldParse(),
+  ':hover': shouldParse(),
+  ':focus': shouldParse(),
+  ':target': shouldParse(),
+  ':lang(fr)': shouldParse(),
+  ':enabled': shouldParse(),
+  ':disabled': shouldParse(),
+  ':checked': shouldParse(),
+  '::first-line': shouldParse(),
+  '::first-letter': shouldParse(),
+  '::before': shouldParse(),
+  '::after': shouldParse(),
+  '.warning': shouldParse(),
+  '#myid': shouldParse(),
+  ':not(s)': shouldParse()
+}).run();
+
+/*
   def test_attribute_selectors_with_identifiers
     assert_selector_parses('[foo~=bar]')
     assert_selector_parses('[foo^=bar]')
@@ -232,4 +234,4 @@ SCSS
     assert_selector_parses('E*:hover')
   end  
   */
-}).run();
+
