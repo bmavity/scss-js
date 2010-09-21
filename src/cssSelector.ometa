@@ -1,3 +1,5 @@
+var sys = require('sys');
+
 ometa CssSelector <: Parser {
   crChar = '\r',
   ffChar = '\f',
@@ -7,21 +9,22 @@ ometa CssSelector <: Parser {
   tabOrLineEnding = tabChar | lineEnding,
 
 
-  ident = '-' nmstart nmchar* 
-        | nmstart nmchar*,
-  name = nmchar+,
-  nmstart = '_' | letter | nonascii | escape,
+  ident = '-' nmstart:s nmchar*:cs -> { '-' + s + cs.join('') } 
+        | nmstart:s nmchar*:cs -> { s + cs.join('') },
+  name = nmchar+:n -> { n.join('') },
+  nmstart = ('_' | letter | nonascii | escape):n -> { n },
   nonascii = '',
   unicode = '',
   escape = unicode | '',
   nmchar = '_' | '-' | letterOrDigit | nonascii | escape,
   num = digit+: d -> d.join('')
       | digit* '.' digit+,
-  string = string1 | string2,
-  string1 = '"' (~(lineEnding | '"') | '\\' nl | nonascii | escape)* '"',
-  string2 = '\'' (~(lineEnding | '\'') | '\\' nl | nonascii | escape)* '\'',
+  string = (string1 | string2):s -> { s },
+  //string1 = '\"' (~(lineEnding | '\"') | '\\' nl | nonascii | escape)*:s '\"' -> { '\"' + s.join('') + '\"' },
+  string1 = '\"' ~'\"'*:s '\"' -> { sys.puts(s.join('')); s },
+  string2 = '\'' (~(lineEnding | '\'') | '\\' nl | nonascii | escape)*:s '\'' -> { '\'' + s.join('') + '\'' },
   invalid = invalid1 | invalid2,
-  invalid1 = '"' (~(lineEnding | '"') | '\\' nl | nonascii | escape)*,
+  invalid1 = '\"' (~(lineEnding | '\"') | '\\' nl | nonascii | escape)*,
   invalid2 = '\'' (~(lineEnding | '\'') | '\\' nl | nonascii | escape)*,
   nl = crChar nlChar
      | lineEnding,
@@ -41,14 +44,14 @@ ometa CssSelector <: Parser {
   SUFFIXMATCH = '$' '=',
   SUBSTRINGMATCH = '*' '=',
   IDENT = ident,
-  STRING = string,
-  FUNCTION = ident '(',
-  NUMBER = num,
-  HASH = '#' name,
-  PLUS = w '+',
-  GREATER = w '>',
-  COMMA = w ',',
-  TILDE = w '~',
+  STRING = string:s -> { s },
+  FUNCTION = ident:i '(' -> { i + '(' },
+  NUMBER = num:n -> { n },
+  HASH = '#' name:n -> { '#' + n },
+  PLUS = w '+' -> { ' +' },
+  GREATER = w '>' -> { ' >' },
+  COMMA = w ',' -> { ' ,' },
+  TILDE = w '~' -> { ' ~' },
   NOT = ':' N O T '(',
   ATKEYWORD = '@' ident,
   INVALID = invalid,
@@ -58,32 +61,52 @@ ometa CssSelector <: Parser {
   CDC = '-' '-' '>',
 
 
-  selectors_group = selector (COMMA S* selector)*,
-  selector = simple_selector_sequence (combinator simple_selector_sequence)*,
-  combinator = PLUS S*
-             | GREATER S*
-             | TILDE S*
-             | S+,
-  simple_selector_sequence = (type_selector | universal) (HASH | class | attrib | pseudo | negation)*
-                           | (HASH | class | attrib | pseudo | negation)+,
+  selectors_group = selector:s (COMMA S* selector)* -> { self.add(s); self },
+  selector = simple_selector_sequence:sim (combined_sequence)*:additional -> { sim + additional.join('') },
+  combinator = PLUS:p S+ -> { p + ' ' }
+             | PLUS:p -> { p + ' ' }
+             | GREATER:g S+ -> { g + ' ' }
+             | GREATER:g -> { g + ' ' }
+             | TILDE:t S+ -> { t + ' ' }
+             | TILDE:t -> { t + ' ' }
+             | S+ -> { ' ' },
+  combined_sequence = combinator:comb simple_selector_sequence:sel -> { comb + sel },
+  simple_selector_sequence = (type_selector | universal):pre (HASH | class | attrib | pseudo | negation)*:post -> { pre + post.join('') }
+                           | (HASH | class | attrib | pseudo | negation)+:sels -> { sels.join('') },
   type_selector = namespace_prefix element_name
-                | element_name,
+                | element_name:ele -> { ele },
   namespace_prefix = (IDENT | '*') '|'
                    | '|',
-  element_name = IDENT,
+  element_name = IDENT:i -> { i },
   universal = namespace_prefix '*'
             | '*',
-  class = '.' IDENT,
+  class = '.' IDENT:i -> { '.' + i },
 
-  attrib = '[' S* possible_namespaced_attrib ']',
-  possible_namespaced_attrib = namespace_prefix ident_with_possible_postfix
-                             | ident_with_possible_postfix,
-  ident_with_possible_postfix = IDENT S* (PREFIXMATCH | SUFFIXMATCH | SUBSTRINGMATCH | '=' | INCLUDES | DASHMATCH) S* (IDENT | STRING) S*
-                              | IDENT S*,
-  pseudo = ':' ':' (IDENT | functional_pseudo)
-         | ':' (IDENT | functional_pseudo),
-  functional_pseudo = FUNCTION S* expression ')' -> 'h',
-  expression = ((PLUS | '-' | DIMENSION | NUMBER | STRING | IDENT) S*)+,
+  attrib = '[' S* possible_namespaced_attrib:att ']' -> { '[' + att + ']' },
+  possible_namespaced_attrib = namespace_prefix:pre ident_with_possible_postfix:post -> { pre + post }
+                             | ident_with_possible_postfix:post -> { post },
+  ident_with_possible_postfix = IDENT:left S* (PREFIXMATCH | SUFFIXMATCH | SUBSTRINGMATCH | '=' | INCLUDES | DASHMATCH):match S* (IDENT | STRING):right S* -> { left + match + right }
+                              | IDENT:i S* -> { i },
+  pseudo = ':' ':' (functional_pseudo | IDENT):i -> { '::' + i }
+         | ':' (functional_pseudo | IDENT):i -> { ':' + i },
+  functional_pseudo = FUNCTION:f S* expression:e ')' -> { f + e + ')' },
+
+  expression_content = (PLUS | '-' | DIMENSION | NUMBER | STRING | IDENT):e S* -> { e },
+  expression = (expression_content)+:ea -> { ea.join(' ') },
   negation = NOT S* negation_arg S* ')',
   negation_arg = type_selector | universal | HASH | class | attrib | pseudo
 }
+
+CssSelector.initialize = function() {
+  var s;
+  
+  this.toString = function() {
+    return s;
+  };
+
+  this.add = function(st) {
+    s = st;
+  };
+};
+
+CssSelector
