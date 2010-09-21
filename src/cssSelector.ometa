@@ -48,7 +48,8 @@ ometa CssSelector <: Parser {
   FUNCTION = ident:i '(' -> { i + '(' },
   NUMBER = num:n -> { n },
   HASH = '#' name:n -> { '#' + n },
-  PLUS = w '+' -> { ' +' },
+  PLUS = '+' -> { '+' }
+       | w '+' -> { ' +' },
   GREATER = w '>' -> { ' >' },
   COMMA = w ',' -> { ' ,' },
   TILDE = w '~' -> { ' ~' },
@@ -56,7 +57,7 @@ ometa CssSelector <: Parser {
   ATKEYWORD = '@' ident,
   INVALID = invalid,
   PERCENTAGE = num '%',
-  DIMENSION = num ident,
+  DIMENSION = num:n ident:i -> { n + i },
   CDO = '<' '!' '-' '-',
   CDC = '-' '-' '>',
 
@@ -64,11 +65,11 @@ ometa CssSelector <: Parser {
   selectors_group = selector:s (COMMA S* selector)* -> { self.add(s); self },
   selector = simple_selector_sequence:sim (combined_sequence)*:additional -> { sim + additional.join('') },
   combinator = PLUS:p S+ -> { p + ' ' }
-             | PLUS:p -> { p + ' ' }
+             | PLUS:p -> { p }
              | GREATER:g S+ -> { g + ' ' }
-             | GREATER:g -> { g + ' ' }
+             | GREATER:g -> { g }
              | TILDE:t S+ -> { t + ' ' }
-             | TILDE:t -> { t + ' ' }
+             | TILDE:t -> { t }
              | S+ -> { ' ' },
   combined_sequence = combinator:comb simple_selector_sequence:sel -> { comb + sel },
   simple_selector_sequence = (type_selector | universal):pre (HASH | class | attrib | pseudo | negation)*:post -> { pre + post.join('') }
@@ -93,8 +94,9 @@ ometa CssSelector <: Parser {
          | ':' (functional_pseudo | IDENT):i -> { ':' + i },
   functional_pseudo = FUNCTION:f S* expression:e ')' -> { f + e + ')' },
 
-  expression_content = (PLUS | '-' | DIMENSION | NUMBER | STRING | IDENT):e S* -> { e },
-  expression = (expression_content)+:ea -> { ea.join(' ') },
+  expression_content = (PLUS | '-' | DIMENSION | NUMBER | STRING | IDENT):e S+ -> { e + ' ' }
+                     | (PLUS | '-' | DIMENSION | NUMBER | STRING | IDENT):e -> { e },
+  expression = (expression_content)+:ea -> { ea.join('') },
   negation = NOT S* negation_arg S* ')',
   negation_arg = type_selector | universal | HASH | class | attrib | pseudo
 }
