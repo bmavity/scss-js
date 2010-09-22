@@ -18,6 +18,21 @@ var shouldParse = function() {
   return context;
 };
 
+var shouldParseTo = function(expectedSelector) {
+  var context = {
+        topic: function() {
+          var selector = this.context.name;
+          selectorGrammar.parse(selector, this.callback);
+        }
+      };
+
+  context['should parse selector'] = function(err, parsedSelector) {
+    assert.equal(parsedSelector, expectedSelector);
+  };
+
+  return context;
+};
+
 vows.describe('Summarized Selectors').addBatch({
   // Taken from http://www.w3.org/TR/css3-selectors/#selectors
 
@@ -133,17 +148,10 @@ vows.describe('Nth Selectors').addBatch({
   ':nth-child(2n-3)': shouldParse(),
   ':nth-child(+2n-3)': shouldParse(),
   ':nth-child(-2n+3)': shouldParse(),
-  ':nth-child(-2n+ 3)': shouldParse()
-/*
-  assert_equal(<<CSS, render(<<SCSS))
-
-:nth-child(2n + 3) {
-a: b; }
-CSS
-:nth-child( 2n + 3 ) {
-a: b; }
-SCSS
-*/
+  ':nth-child(-2n+ 3)': shouldParse(),
+  ':nth-child(-2n+ 3)': shouldParse(),
+  ':nth-child(-2n+ 3)': shouldParse(),
+  ':nth-child( 2n + 3 )': shouldParseTo(':nth-child(2n + 3)')
 }).run();
 
 

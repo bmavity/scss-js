@@ -92,11 +92,13 @@ ometa CssSelector <: Parser {
   equals_match = '=' -> { '=' },
   pseudo = ':' ':' (functional_pseudo | IDENT):i -> { '::' + i }
          | ':' (functional_pseudo | IDENT):i -> { ':' + i },
-  functional_pseudo = FUNCTION:f S* expression:e ')' -> { f + e + ')' },
+  functional_pseudo = FUNCTION:f S* full_expression:e ')' -> { f + e + ')' },
 
-  expression_content = (PLUS | '-' | DIMENSION | NUMBER | STRING | IDENT):e S+ -> { e + ' ' }
-                     | (PLUS | '-' | DIMENSION | NUMBER | STRING | IDENT):e -> { e },
-  expression = (expression_content)+:ea -> { ea.join('') },
+  expression_content = (PLUS | '-' | DIMENSION | NUMBER | STRING | IDENT):e -> { e },
+  expression = expression_content:ec S+ expression:e -> { ec + ' ' + e }
+             | expression_content:ec expression:e -> { ec + e }
+             | expression_content:ec S* -> { ec },
+  full_expression = (expression)+:ea -> { ea.join('') },
   negation = NOT S* negation_arg S* ')',
   negation_arg = type_selector | universal | HASH | class | attrib | pseudo
 }
