@@ -155,31 +155,32 @@ vows.describe('Nth Selectors').addBatch({
 }).run();
 
 
+vows.describe('Negation Selectors').addBatch({
+  ':not(foo|bar)': shouldParse(),
+  ':not(*|bar)': shouldParse(),
+
+  ':not(foo|*)': shouldParse(),
+  ':not(*|*)': shouldParse(),
+
+  ':not(#blah)': shouldParse(),
+  ':not(.blah)': shouldParse(),
+
+  ':not([foo])': shouldParse(),
+  ':not([foo^="bar"])': shouldParse(),
+  ':not([baz|foo~="bar"])': shouldParse(),
+
+  ':not(:hover)': shouldParse(),
+  ':not(:nth-child(2n + 3))': shouldParse(),
+
+  // Not technically allowed, but what the heck
+  ':not(:not(#foo))': shouldParse(),
+  ':not(a#foo.bar)': shouldParse(),
+  ':not(#foo .bar > baz)': shouldParse(),
+  ':not(h1, h2, h3)': shouldParse()
+}).run();
+
+
 /*
-  def test_negation_selectors
-    assert_selector_parses(':not(foo|bar)')
-    assert_selector_parses(':not(*|bar)')
-
-    assert_selector_parses(':not(foo|*)')
-    assert_selector_parses(':not(*|*)')
-
-    assert_selector_parses(':not(#blah)')
-    assert_selector_parses(':not(.blah)')
-
-    assert_selector_parses(':not([foo])')
-    assert_selector_parses(':not([foo^="bar"])')
-    assert_selector_parses(':not([baz|foo~="bar"])')
-
-    assert_selector_parses(':not(:hover)')
-    assert_selector_parses(':not(:nth-child(2n + 3))')
-
-    # Not technically allowed, but what the heck
-    assert_selector_parses(':not(:not(#foo))')
-    assert_selector_parses(':not(a#foo.bar)')
-    assert_selector_parses(':not(#foo .bar > baz)')
-    assert_selector_parses(':not(h1, h2, h3)')
-  end
-
   def test_moz_any_selector
     assert_selector_parses(':-moz-any(h1, h2, h3)')
     assert_selector_parses(':-moz-any(.foo)')

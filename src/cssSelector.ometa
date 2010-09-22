@@ -53,7 +53,7 @@ ometa CssSelector <: Parser {
   GREATER = w '>' -> { ' >' },
   COMMA = w ',' -> { ' ,' },
   TILDE = w '~' -> { ' ~' },
-  NOT = ':' N O T '(',
+  NOT = ':' N O T '(' -> { ':not(' },
   ATKEYWORD = '@' ident,
   INVALID = invalid,
   PERCENTAGE = num '%',
@@ -72,8 +72,8 @@ ometa CssSelector <: Parser {
              | TILDE:t -> { t }
              | S+ -> { ' ' },
   combined_sequence = combinator:comb simple_selector_sequence:sel -> { comb + sel },
-  simple_selector_sequence = (type_selector | universal):pre (HASH | class | attrib | pseudo | negation)*:post -> { pre + post.join('') }
-                           | (HASH | class | attrib | pseudo | negation)+:sels -> { sels.join('') },
+  simple_selector_sequence = (type_selector | universal):pre (HASH | class | attrib | negation | pseudo)*:post -> { pre + post.join('') }
+                           | (HASH | class | attrib | negation | pseudo)+:sels -> { sels.join('') },
   type_selector = namespace_prefix element_name
                 | element_name:ele -> { ele },
   namespace_prefix = (IDENT | '*') '|'
@@ -99,8 +99,11 @@ ometa CssSelector <: Parser {
              | expression_content:ec expression:e -> { ec + e }
              | expression_content:ec S* -> { ec },
   full_expression = (expression)+:ea -> { ea.join('') },
-  negation = NOT S* negation_arg S* ')',
-  negation_arg = type_selector | universal | HASH | class | attrib | pseudo
+  negation = NOT:n S* negation_arg:na S* ')' -> { n + na + ')' },
+
+  //negation_arg = (type_selector | universal | HASH | class | attrib | pseudo):na -> { na }
+  //Technically not allowed, but here for scss compatibility
+  negation_arg = (selectors_group):na -> { na }
 }
 
 CssSelector.initialize = function() {
