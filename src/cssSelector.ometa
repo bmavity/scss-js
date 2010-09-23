@@ -105,7 +105,9 @@ ometa CssSelector <: Parser {
   equals_match = '=' -> { '=' },
   pseudo = ':' ':' (functional_pseudo | IDENT):i -> { '::' + i }
          | ':' (functional_pseudo | IDENT):i -> { ':' + i },
-  functional_pseudo = FUNCTION:f S* full_expression:e ')' -> { f + e + ')' },
+  functional_pseudo = FUNCTION:f S* full_expression:e ')' -> { f + e + ')' }
+                    // Css Hack for :-moz-any(...)
+                    | FUNCTION:f S* selectors_group:sel ')' -> { f + sel + ')' },
 
   expression_content = (PLUS | '-' | PERCENTAGE | DIMENSION | NUMBER | STRING | IDENT):e -> { e },
   expression = expression_content:ec S+ expression:e -> { ec + ' ' + e }
