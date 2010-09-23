@@ -188,7 +188,7 @@ vows.describe('Negation Selectors').addBatch({
 }).run();
 
 
-vows.describe('moz Any Selector').addBatch({
+vows.describe('moz-any Selector').addBatch({
   ':-moz-any(h1, h2, h3)': shouldParse(),
   ':-moz-any(.foo)': shouldParse(),
   ':-moz-any(foo bar, .baz > .bang)': shouldParse()
