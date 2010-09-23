@@ -205,13 +205,13 @@ vows.describe('Namespaced Attribute Selectors').addBatch({
 }).run();
 
 
-/*
-  def test_comma_selectors
-    assert_selector_parses('E, F')
-    assert_selector_parses('E F, G H')
-    assert_selector_parses('E > F, G > H')
-  end
+vows.describe('Comma Selectors').addBatch({
+  'E, F': shouldParse(),
+  'E F, G H': shouldParse(),
+  'E > F, G > H': shouldParse()
+}).run();
 
+/*
   def test_selectors_with_newlines
     assert_selector_parses("E,\nF")
     assert_selector_parses("E\nF")
