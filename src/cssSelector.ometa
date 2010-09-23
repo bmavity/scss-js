@@ -62,7 +62,8 @@ ometa CssSelector <: Parser {
   CDC = '-' '-' '>',
 
 
-  selectors_group = selector:s (COMMA S* selector)* -> { self.add(s); self },
+  selectors_group = selector:pre comma_separated_selector*:post -> { self.add(pre + post.join('')); self },
+  comma_separated_selector = COMMA S* selector:sel -> { ', ' + sel },
   selector = simple_selector_sequence:sim (combined_sequence)*:additional -> { sim + additional.join('') },
   combinator = PLUS:p S+ -> { p + ' ' }
              | PLUS:p -> { p }
