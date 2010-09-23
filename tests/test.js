@@ -181,19 +181,23 @@ vows.describe('Negation Selectors').addBatch({
 
 
 /*
-  def test_moz_any_selector
-    assert_selector_parses(':-moz-any(h1, h2, h3)')
-    assert_selector_parses(':-moz-any(.foo)')
-    assert_selector_parses(':-moz-any(foo bar, .baz > .bang)')
-  end
+vows.describe('moz Any Selector').addBatch({
+  ':-moz-any(h1, h2, h3)': shouldParse(),
+  ':-moz-any(.foo)': shouldParse(),
+  ':-moz-any(foo bar, .baz > .bang)': shouldParse()
+}).run();
+*/
 
-  def test_namespaced_selectors
-    assert_selector_parses('foo|E')
-    assert_selector_parses('*|E')
-    assert_selector_parses('foo|*')
-    assert_selector_parses('*|*')
-  end
 
+vows.describe('Namespaced Selectors').addBatch({
+  'foo|E': shouldParse(),
+  '*|E': shouldParse(),
+  'foo|*': shouldParse(),
+  '*|*': shouldParse()
+}).run();
+
+
+/*
   def test_namespaced_attribute_selectors
     assert_selector_parses('[foo|bar=baz]')
     assert_selector_parses('[*|bar=baz]')
