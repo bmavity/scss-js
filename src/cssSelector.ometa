@@ -61,7 +61,7 @@ ometa CssSelector <: Parser {
   NOT = ':' N O T '(' -> { ':not(' },
   ATKEYWORD = '@' ident,
   INVALID = invalid,
-  PERCENTAGE = num '%',
+  PERCENTAGE = num:n '%' -> { n + '%' },
   DIMENSION = num:n ident:i -> { n + i },
   CDO = '<' '!' '-' '-',
   CDC = '-' '-' '>',
@@ -86,7 +86,9 @@ ometa CssSelector <: Parser {
                            | namespace_prefix:pre element_name:ele non_namespaced_selector*:post -> { pre + ele + post.join('') }
                            | '*' non_namespaced_selector*:post -> { '*' + post.join('') }
                            | element_name:ele non_namespaced_selector*:post -> { ele + post.join('') }
-                           | non_namespaced_selector+:sels -> { sels.join('') },
+                           | non_namespaced_selector+:sels -> { sels.join('') }
+                           // Css Hack
+                           | expression:ex -> { ex },
   namespace_prefix = ('*' | IDENT):pre '|' -> { pre + '|' }
                    | '|' -> { '|' },
   // First line of the next selector is a Css Hack
@@ -105,7 +107,7 @@ ometa CssSelector <: Parser {
          | ':' (functional_pseudo | IDENT):i -> { ':' + i },
   functional_pseudo = FUNCTION:f S* full_expression:e ')' -> { f + e + ')' },
 
-  expression_content = (PLUS | '-' | DIMENSION | NUMBER | STRING | IDENT):e -> { e },
+  expression_content = (PLUS | '-' | PERCENTAGE | DIMENSION | NUMBER | STRING | IDENT):e -> { e },
   expression = expression_content:ec S+ expression:e -> { ec + ' ' + e }
              | expression_content:ec expression:e -> { ec + e }
              | expression_content:ec S* -> { ec },

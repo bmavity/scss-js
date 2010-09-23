@@ -225,7 +225,7 @@ vows.describe('Selectors with Newlines').addBatch({
   "E\nF": shouldParse(),
   "E, F\nG, H": shouldParse()
 }).run();
-
+*/
 
 vows.describe('Expression Fallback Selectors').addBatch({
   '0%': shouldParse(),
@@ -234,7 +234,6 @@ vows.describe('Expression Fallback Selectors').addBatch({
   '12px': shouldParse(),
   '"foo"': shouldParse()
 }).run();
-*/
 
 
 vows.describe('Functional Pseudo Selectors').addBatch({
