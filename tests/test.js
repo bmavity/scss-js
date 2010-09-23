@@ -197,13 +197,15 @@ vows.describe('Namespaced Selectors').addBatch({
 }).run();
 
 
-/*
-  def test_namespaced_attribute_selectors
-    assert_selector_parses('[foo|bar=baz]')
-    assert_selector_parses('[*|bar=baz]')
-    assert_selector_parses('[foo|bar|=baz]')
-  end
 
+vows.describe('Namespaced Attribute Selectors').addBatch({
+  '[foo|bar=baz]': shouldParse(),
+  '[*|bar=baz]': shouldParse(),
+  '[foo|bar|=baz]': shouldParse()
+}).run();
+
+
+/*
   def test_comma_selectors
     assert_selector_parses('E, F')
     assert_selector_parses('E F, G H')
