@@ -248,12 +248,12 @@ vows.describe('Functional Pseudo Selectors').addBatch({
 }).run();
 
 
-vows.describe('Functional Pseudo Selectors').addBatch({
+vows.describe('Selector Hacks').addBatch({
   '> E': shouldParse(),
   '+ E': shouldParse(),
   '~ E': shouldParse(),
   '> > E': shouldParse(),
-  '> > E': shouldParseTo('>> E'),
+  '>> E': shouldParseTo('> > E'),
   'E*': shouldParse(),
   'E*.foo': shouldParse(),
   'E*:hover': shouldParse()

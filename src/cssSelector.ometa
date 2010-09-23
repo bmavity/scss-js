@@ -48,11 +48,16 @@ ometa CssSelector <: Parser {
   FUNCTION = ident:i '(' -> { i + '(' },
   NUMBER = num:n -> { n },
   HASH = '#' name:n -> { '#' + n },
-  PLUS = '+' -> { '+' }
-       | w '+' -> { ' +' },
-  GREATER = w '>' -> { ' >' },
-  COMMA = w ',' -> { ' ,' },
-  TILDE = w '~' -> { ' ~' },
+  PLUS = S+ '+' -> { ' +' }
+       | '+' -> { '+' },
+  // First line of next selector is a Css Hack
+  GREATER = '>' '>' -> { '> >' }
+          | S+ '>' -> { ' >' }
+          | '>' -> { '>' },
+  COMMA = S+ ',' -> { ' ,' }
+        | ',' -> { ',' },
+  TILDE = S+ '~' -> { ' ~' }
+        | '~' -> { '~' },
   NOT = ':' N O T '(' -> { ':not(' },
   ATKEYWORD = '@' ident,
   INVALID = invalid,
@@ -64,7 +69,9 @@ ometa CssSelector <: Parser {
 
   selectors_group = selector:pre comma_separated_selector*:post -> { self.add(pre + post.join('')); self },
   comma_separated_selector = COMMA S* selector:sel -> { ', ' + sel },
-  selector = simple_selector_sequence:sim (combined_sequence)*:additional -> { sim + additional.join('') },
+  selector = simple_selector_sequence:sim (combined_sequence)*:additional -> { sim + additional.join('') }
+           // Css Hack
+           | combined_sequence*:comb -> { comb.join('') },
   combinator = PLUS:p S+ -> { p + ' ' }
              | PLUS:p -> { p }
              | GREATER:g S+ -> { g + ' ' }
@@ -72,7 +79,8 @@ ometa CssSelector <: Parser {
              | TILDE:t S+ -> { t + ' ' }
              | TILDE:t -> { t }
              | S+ -> { ' ' },
-  combined_sequence = combinator:comb simple_selector_sequence:sel -> { comb + sel },
+  combined_sequence = combinator:comb simple_selector_sequence:sel -> { comb + sel }
+                    | combinator+:comb simple_selector_sequence:sel -> { comb.join('') + sel },
   non_namespaced_selector = (HASH | class | attrib | negation | pseudo):sel -> { sel },
   simple_selector_sequence = namespace_prefix:pre '*' non_namespaced_selector*:post -> { pre + '*' + post.join('') }
                            | namespace_prefix:pre element_name:ele non_namespaced_selector*:post -> { pre + ele + post.join('') }
@@ -81,7 +89,9 @@ ometa CssSelector <: Parser {
                            | non_namespaced_selector+:sels -> { sels.join('') },
   namespace_prefix = ('*' | IDENT):pre '|' -> { pre + '|' }
                    | '|' -> { '|' },
-  element_name = IDENT:i -> { i },
+  // First line of the next selector is a Css Hack
+  element_name = IDENT:i '*' -> { i + '*' }
+               | IDENT:i -> { i },
   class = '.' IDENT:i -> { '.' + i },
 
   attrib = '[' S* possible_namespaced_attrib:att ']' -> { '[' + att + ']' },
