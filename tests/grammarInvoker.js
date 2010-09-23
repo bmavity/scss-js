@@ -49,7 +49,11 @@ var parse = function(selector, callback) {
       callback(err);
     } else {
       parser.parse(selector, 'selectors_group', function(err, css) {
-        callback(null, css.toString());
+        if(err) {
+          callback(err);
+        } else {
+          callback(null, css.toString());
+        }
       });
     }
   });
