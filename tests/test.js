@@ -12,7 +12,11 @@ var shouldParse = function() {
       };
 
   context['should parse selector'] = function(err, parsedSelector) {
-    assert.equal(parsedSelector, selector);
+    if(err) {
+      assert.fail(err.inner.toString());
+    } else {
+      assert.equal(parsedSelector, selector);
+    }
   };
 
   return context;
@@ -27,7 +31,11 @@ var shouldParseTo = function(expectedSelector) {
       };
 
   context['should parse selector'] = function(err, parsedSelector) {
-    assert.equal(parsedSelector, expectedSelector);
+    if(err) {
+      assert.fail(err.inner.toString());
+    } else {
+      assert.equal(parsedSelector, expectedSelector);
+    }
   };
 
   return context;
@@ -239,23 +247,14 @@ vows.describe('Functional Pseudo Selectors').addBatch({
   ':foo(-++--baz-"bar"12px)': shouldParse()
 }).run();
 
-/*
-  def test_selector_hacks
-    assert_selector_parses('> E')
-    assert_selector_parses('+ E')
-    assert_selector_parses('~ E')
-    assert_selector_parses('> > E')
-    assert_equal <<CSS, render(<<SCSS)
-> > E {
-a: b; }
-CSS
->> E {
-a: b; }
-SCSS
 
-    assert_selector_parses('E*')
-    assert_selector_parses('E*.foo')
-    assert_selector_parses('E*:hover')
-  end  
-  */
-
+vows.describe('Functional Pseudo Selectors').addBatch({
+  '> E': shouldParse(),
+  '+ E': shouldParse(),
+  '~ E': shouldParse(),
+  '> > E': shouldParse(),
+  '> > E': shouldParseTo('>> E'),
+  'E*': shouldParse(),
+  'E*.foo': shouldParse(),
+  'E*:hover': shouldParse()
+}).run();
