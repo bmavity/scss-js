@@ -212,30 +212,34 @@ vows.describe('Comma Selectors').addBatch({
 }).run();
 
 /*
-  def test_selectors_with_newlines
-    assert_selector_parses("E,\nF")
-    assert_selector_parses("E\nF")
-    assert_selector_parses("E, F\nG, H")
-  end
+vows.describe('Selectors with Newlines').addBatch({
+  "E,\nF": shouldParse(),
+  "E\nF": shouldParse(),
+  "E, F\nG, H": shouldParse()
+}).run();
 
-  def test_expression_fallback_selectors
-    assert_selector_parses('0%')
-    assert_selector_parses('60%')
-    assert_selector_parses('100%')
-    assert_selector_parses('12px')
-    assert_selector_parses('"foo"')
-  end
 
-  def test_functional_pseudo_selectors
-    assert_selector_parses(':foo("bar")')
-    assert_selector_parses(':foo(bar)')
-    assert_selector_parses(':foo(12px)')
-    assert_selector_parses(':foo(+)')
-    assert_selector_parses(':foo(-)')
-    assert_selector_parses(':foo(+"bar")')
-    assert_selector_parses(':foo(-++--baz-"bar"12px)')
-  end
+vows.describe('Expression Fallback Selectors').addBatch({
+  '0%': shouldParse(),
+  '60%': shouldParse(),
+  '100%': shouldParse(),
+  '12px': shouldParse(),
+  '"foo"': shouldParse()
+}).run();
+*/
 
+
+vows.describe('Functional Pseudo Selectors').addBatch({
+  ':foo("bar")': shouldParse(),
+  ':foo(bar)': shouldParse(),
+  ':foo(12px)': shouldParse(),
+  ':foo(+)': shouldParse(),
+  ':foo(-)': shouldParse(),
+  ':foo(+"bar")': shouldParse(),
+  ':foo(-++--baz-"bar"12px)': shouldParse()
+}).run();
+
+/*
   def test_selector_hacks
     assert_selector_parses('> E')
     assert_selector_parses('+ E')
