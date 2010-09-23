@@ -72,15 +72,15 @@ ometa CssSelector <: Parser {
              | TILDE:t -> { t }
              | S+ -> { ' ' },
   combined_sequence = combinator:comb simple_selector_sequence:sel -> { comb + sel },
-  simple_selector_sequence = (type_selector | universal):pre (HASH | class | attrib | negation | pseudo)*:post -> { pre + post.join('') }
-                           | (HASH | class | attrib | negation | pseudo)+:sels -> { sels.join('') },
-  type_selector = namespace_prefix element_name
-                | element_name:ele -> { ele },
-  namespace_prefix = (IDENT | '*') '|'
-                   | '|',
+  non_namespaced_selector = (HASH | class | attrib | negation | pseudo):sel -> { sel },
+  simple_selector_sequence = namespace_prefix:pre '*' non_namespaced_selector*:post -> { pre + '*' + post.join('') }
+                           | namespace_prefix:pre element_name:ele non_namespaced_selector*:post -> { pre + ele + post.join('') }
+                           | '*' non_namespaced_selector*:post -> { '*' + post.join('') }
+                           | element_name:ele non_namespaced_selector*:post -> { ele + post.join('') }
+                           | non_namespaced_selector+:sels -> { sels.join('') },
+  namespace_prefix = ('*' | IDENT):pre '|' -> { pre + '|' }
+                   | '|' -> { '|' },
   element_name = IDENT:i -> { i },
-  universal = namespace_prefix '*'
-            | '*',
   class = '.' IDENT:i -> { '.' + i },
 
   attrib = '[' S* possible_namespaced_attrib:att ']' -> { '[' + att + ']' },
