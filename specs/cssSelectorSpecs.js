@@ -217,13 +217,13 @@ vows.describe('Comma Selectors').addBatch({
   'E > F, G > H': shouldParse()
 }).run();
 
-/*
+
 vows.describe('Selectors with Newlines').addBatch({
   "E,\nF": shouldParse(),
   "E\nF": shouldParse(),
   "E, F\nG, H": shouldParse()
 }).run();
-*/
+
 
 vows.describe('Expression Fallback Selectors').addBatch({
   '0%': shouldParse(),
