@@ -1,5 +1,3 @@
-var sys = require('sys');
-
 ometa CssSelector <: Parser {
   crChar = '\r',
   ffChar = '\f',
@@ -28,7 +26,6 @@ ometa CssSelector <: Parser {
   //invalid2 = '\'' (~(lineEnding | '\'') | '\\' nl | nonascii | escape)*,
   nl = crChar nlChar
      | lineEnding,
-  w = (' ' | tabOrLineEnding)*,
   D = 'd' | 'D',
   E = 'e' | 'E',
   N = 'n' | 'N',
@@ -37,7 +34,8 @@ ometa CssSelector <: Parser {
   V = 'v' | 'V',
 
 
-  S = ' ' | tabOrLineEnding,
+  S = ' ' -> { ' ' }
+    | '\n' -> { '\n' },
   INCLUDES = '~' '=' -> { '~=' },
   DASHMATCH = '|' '=' -> { '|=' },
   PREFIXMATCH = '^' '=' -> { '^=' },
@@ -68,7 +66,7 @@ ometa CssSelector <: Parser {
 
 
   selectors_group = selector:pre comma_separated_selector*:post -> { self.add(pre + post.join('')); self },
-  comma_separated_selector = COMMA S* selector:sel -> { ', ' + sel },
+  comma_separated_selector = COMMA:com S*:spacing selector:sel -> { com + spacing.join('') + sel },
   selector = simple_selector_sequence:sim (combined_sequence)*:additional -> { sim + additional.join('') }
            // Css Hack
            | combined_sequence*:comb -> { comb.join('') },
@@ -78,7 +76,7 @@ ometa CssSelector <: Parser {
              | GREATER:g -> { g }
              | TILDE:t S+ -> { t + ' ' }
              | TILDE:t -> { t }
-             | S+ -> { ' ' },
+             | S+:spacing -> { spacing.join('') },
   combined_sequence = combinator:comb simple_selector_sequence:sel -> { comb + sel }
                     | combinator+:comb simple_selector_sequence:sel -> { comb.join('') + sel },
   non_namespaced_selector = (HASH | class | attrib | negation | pseudo):sel -> { sel },

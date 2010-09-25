@@ -12,6 +12,7 @@ var createParser = function(parserInitializer) {
       } else {
         ometa.createParser(contents.toString(), parserInitializer.setParser);
       }
+      creatingParser = false;
     });
   }
 };
@@ -40,6 +41,10 @@ var parserInitializer = (function() {
     }
   };
 
+  that.reset = function() {
+    createdParser = null;
+  };
+
   return that;
 })();
 
@@ -61,3 +66,4 @@ var parse = function(selector, callback) {
 
 
 module.exports.parse = parse;
+module.exports.reset = parserInitializer.reset;
