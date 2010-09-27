@@ -65,8 +65,8 @@ ometa CssSelector <: Parser {
   CDC = '-' '-' '>',
 
 
-  selectors_group = selector:pre comma_separated_selector*:post -> { self.add(pre + post.join('')); self },
-  comma_separated_selector = COMMA:com S*:spacing selector:sel -> { com + spacing.join('') + sel },
+  selectors_group = selector:pre comma_separated_selector* -> { self.addSelector(pre); self },
+  comma_separated_selector = COMMA:com S*:spacing selector:sel -> { self.addCommaSeparatedSelector(com + spacing.join(''), sel) },
   selector = simple_selector_sequence:sim (combined_sequence)*:additional -> { sim + additional.join('') }
            // Css Hack
            | combined_sequence*:comb -> { comb.join('') },
@@ -77,8 +77,7 @@ ometa CssSelector <: Parser {
              | TILDE:t S+ -> { t + ' ' }
              | TILDE:t -> { t }
              | S+:spacing -> { spacing.join('') },
-  combined_sequence = combinator:comb simple_selector_sequence:sel -> { comb + sel }
-                    | combinator+:comb simple_selector_sequence:sel -> { comb.join('') + sel },
+  combined_sequence = combinator+:comb simple_selector_sequence:sel -> { comb.join('') + sel },
   non_namespaced_selector = (HASH | class | attrib | negation | pseudo):sel -> { sel },
   simple_selector_sequence = namespace_prefix:pre '*' non_namespaced_selector*:post -> { pre + '*' + post.join('') }
                            | namespace_prefix:pre element_name:ele non_namespaced_selector*:post -> { pre + ele + post.join('') }
@@ -105,7 +104,7 @@ ometa CssSelector <: Parser {
          | ':' (functional_pseudo | IDENT):i -> { ':' + i },
   functional_pseudo = FUNCTION:f S* full_expression:e ')' -> { f + e + ')' }
                     // Css Hack for :-moz-any(...)
-                    | FUNCTION:f S* selectors_group:sel ')' -> { f + sel + ')' },
+                    | FUNCTION:f S* selectors_group:sel ')' -> { f + sel.toString() + ')' },
 
   expression_content = (PLUS | '-' | PERCENTAGE | DIMENSION | NUMBER | STRING | IDENT):e -> { e },
   expression = expression_content:ec S+ expression:e -> { ec + ' ' + e }
@@ -116,18 +115,47 @@ ometa CssSelector <: Parser {
 
   //negation_arg = (type_selector | universal | HASH | class | attrib | pseudo):na -> { na }
   //Technically not allowed, but here for scss compatibility
-  negation_arg = (selectors_group):na -> { na }
+  negation_arg = selectors_group:sg -> { sg.toString() }
 }
 
 CssSelector.initialize = function() {
-  var s;
-  
-  this.toString = function() {
-    return s;
+  var hasBeenStringified = false,
+      self = this;
+
+  this.selector;
+  this.selectors = [];
+  this.commaSeparatedSelectors = [];
+
+  var resetFields = function() {
+    self.selector = null;
+    self.selectors = [];
+    self.commaSeparatedSelectors = [];
+    hasBeenStrigified = false;
   };
 
-  this.add = function(st) {
-    s = st;
+  this.addSelector = function(sel) {
+    if(hasBeenStringified) {
+      resetFields();
+    }
+    this.selector = sel;
+  };
+
+  this.addCommaSeparatedSelector = function(commaAndSpacing, selector) {
+    if(hasBeenStringified) {
+      resetFields();
+    }
+    this.selectors.push(selector);
+    this.commaSeparatedSelectors.push({
+      commaAndSpacing: commaAndSpacing,
+      selector: selector
+    });
+  };
+
+  this.toString = function() {
+    hasBeenStringified = true;
+    return this.selector + this.commaSeparatedSelectors.map(function(csSel) {
+      return csSel.commaAndSpacing + csSel.selector;
+    }).join('');
   };
 };
 

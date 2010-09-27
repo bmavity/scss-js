@@ -38,6 +38,6 @@ var parse = function(scssFile, callback) {
 
 
 module.exports.parse = parse;
-parse('a:nth-child(2 3)', function(err) {
+parse(':not(h1, h2, h3)', function(err) {
   sys.puts(sys.inspect(err, true, null));
 });
