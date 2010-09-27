@@ -6,19 +6,23 @@ var sys = require('sys'),
 
 var getParser = function(callback) {
   if(!createdParser) {
-    fs.readFile(__dirname + '/scss.ometa', function(err, contents) {
-      if(err) {
-        callback(err);
-      } else {
-        ometa.createParser(contents.toString(), function(err, parser) {
+    fs.readFile(__dirname + '/CssSelector.ometa', function(err, cssSelectorContents) {
+      ometa.createParser(cssSelectorContents.toString(), function(err, cssSelectorParser) {
+        fs.readFile(__dirname + '/scss.ometa', function(err, contents) {
           if(err) {
             callback(err);
           } else {
-            createdParser = parser;
-            callback(null, createdParser);
+            ometa.createParser(contents.toString(), function(err, parser) {
+              if(err) {
+                callback(err);
+              } else {
+                createdParser = parser;
+                callback(null, createdParser);
+              }
+            });
           }
         });
-      }
+      });
     });
   } else {
     callback(null, createdParser);
