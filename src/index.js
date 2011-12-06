@@ -12,7 +12,6 @@ var getParser = function(callback) {
   if(!createdParser) {
     fs.readFile(__dirname + '/CssSelector.ometa', 'utf8', function(err, cssSelectorContents) {
       var selectorFile = fixReadFile(cssSelectorContents); 
-      console.log(selectorFile);
       ometa.createParser(selectorFile, function(err, cssSelectorParser) {
         fs.readFile(__dirname + '/scss.ometa', 'utf8', function(err, contents) {
           var contentFile = fixReadFile(contents); 
