@@ -1,12 +1,11 @@
 {
   "name": "scss",
   "description": "JavaScript Implementation of SCSS (Sassy CSS)",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "contributors": [ 
     { "name": "Brian Mavity", "email": "brian@brianmavity.com" }
   ],
   "main": "./src/index.js",
-  "directories": { "lib": "./src" },
   "engines": { "node": ">= 0.2.0" },
   "dependencies": {
     "ometa": "0.2.1"

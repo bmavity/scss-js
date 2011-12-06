@@ -1,4 +1,4 @@
-ometa CssSelector <: Parser {
+﻿ometa CssSelector <: Parser {
   crChar = '\r',
   ffChar = '\f',
   nlChar = '\n',

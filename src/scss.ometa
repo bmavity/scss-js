@@ -1,4 +1,4 @@
-ometa Scss <: Parser {
+﻿ometa Scss <: Parser {
   selector = foreign(CssSelector, 'selectors_group'):sel -> { self.addSelector(sel) },
   
   propertyValue = '$' letterOrDigit+:val -> ('$' + val.join(''))
@@ -38,7 +38,6 @@ Scss.initialize = function() {
   };
 
   this.addMixin = function(mixinName) {
-    console.log('mixin:' + mixinName);
     var block = createBlock();
     mixins[mixinName] = block;
     currentBlock = block;

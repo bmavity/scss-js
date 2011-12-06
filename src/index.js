@@ -4,15 +4,22 @@ var sys = require('sys'),
     rule = 'scssFile',
     createdParser;
 
+var fixReadFile = function(rawFile) {
+  return rawFile.slice(1).replace(/\\n/g, '\n');
+};
+
 var getParser = function(callback) {
   if(!createdParser) {
-    fs.readFile(__dirname + '/CssSelector.ometa', function(err, cssSelectorContents) {
-      ometa.createParser(cssSelectorContents.toString(), function(err, cssSelectorParser) {
-        fs.readFile(__dirname + '/scss.ometa', function(err, contents) {
+    fs.readFile(__dirname + '/CssSelector.ometa', 'utf8', function(err, cssSelectorContents) {
+      var selectorFile = fixReadFile(cssSelectorContents); 
+      console.log(selectorFile);
+      ometa.createParser(selectorFile, function(err, cssSelectorParser) {
+        fs.readFile(__dirname + '/scss.ometa', 'utf8', function(err, contents) {
+          var contentFile = fixReadFile(contents); 
           if(err) {
             callback(err);
           } else {
-            ometa.createParser(contents.toString(), function(err, parser) {
+            ometa.createParser(contentFile, function(err, parser) {
               if(err) {
                 callback(err);
               } else {

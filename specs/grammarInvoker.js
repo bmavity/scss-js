@@ -3,14 +3,19 @@ var sys = require('sys'),
     ometa = require('ometa'),
     creatingParser = false;
 
+var fixReadFile = function(rawFile) {
+  return rawFile.slice(1).replace(/\\n/g, '\n');
+};
+
 var createParser = function(parserInitializer) {
   if(!creatingParser) {
     creatingParser = true;
-    fs.readFile(__dirname + '/../src/cssSelector.ometa', function(err, contents) {
+    //fs.readFile(__dirname + '/../src/cssSelector.ometa', 'utf8', function(err, contents) {
+    fs.readFile(__dirname + '/../../ometa-js/newLineGrammar.ometa', 'utf8', function(err, contents) {
       if(err) {
         parserInitializer.setParser(err);
       } else {
-        ometa.createParser(contents.toString(), parserInitializer.setParser);
+        ometa.createParser(fixReadFile(contents), parserInitializer.setParser);
       }
       creatingParser = false;
     });
@@ -57,7 +62,8 @@ var parse = function(selector, callback) {
         if(err) {
           callback(err);
         } else {
-          callback(null, css.toString());
+          //callback(null, css.toString());
+          callback(null, css.join(''));
         }
       });
     }
@@ -67,3 +73,11 @@ var parse = function(selector, callback) {
 
 module.exports.parse = parse;
 module.exports.reset = parserInitializer.reset;
+var ssss = 'a,\nb';
+console.log(ssss);
+parse(ssss, function(err, shiznit) {
+  if(err) {
+    console.log(err);
+  }
+  console.log(shiznit);
+});
